@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+# Staff tools - keep out of search results
+Disallow: /admin/
