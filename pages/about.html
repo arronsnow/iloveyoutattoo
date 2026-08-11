@@ -113,6 +113,63 @@
     .lb-prev { left: 8px; }
     .lb-next { right: 8px; }
     .lb-prev:hover, .lb-next:hover { color: var(--gold-lt); }
+
+    /* ─────────────────────────────────────────
+       RESPONSIVE
+       This page had no breakpoints at all, so on a phone the two-column
+       layout held: 80px of padding each side left ~196px of text, the
+       logo panel collapsed to 29px, and the gallery stayed at 5 columns
+       of 74px thumbnails.
+       ───────────────────────────────────────── */
+    @media (max-width: 1100px) {
+      .shop-video-content { padding: 0 48px; }
+      .shop-video-content .page-hero-title { font-size: 48px; }
+      .about-text { padding: 56px 48px; }
+      .about-logo { width: min(360px, 78%); }
+      .shop-gallery-header { padding: 44px 48px 26px; }
+      .shop-gallery-grid { grid-template-columns: repeat(4, 1fr); }
+    }
+
+    @media (max-width: 900px) {
+      .shop-video-hero { height: 340px; }
+      .shop-video-content { padding: 0 28px; }
+      .shop-video-content .page-hero-title { font-size: 38px; }
+
+      /* stack: text first, then the logo panel */
+      .about-layout { grid-template-columns: 1fr; }
+      .about-text {
+        padding: 44px 28px;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+      }
+      .about-text h2 { font-size: 29px; margin-bottom: 24px; }
+      .about-text p { font-size: 17px; margin-bottom: 18px; }
+      .about-featured { min-height: 0; padding: 44px 28px; }
+      .about-logo { width: min(300px, 72%); }
+
+      .shop-gallery-header { padding: 36px 28px 22px; }
+      .shop-gallery-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    @media (max-width: 540px) {
+      .shop-video-hero { height: 280px; }
+      .shop-video-content { padding: 0 20px; }
+      .shop-video-content .page-hero-title { font-size: 31px; }
+      .shop-video-content .page-hero-sub { font-size: 13px; }
+
+      .about-text { padding: 36px 20px; }
+      .about-text h2 { font-size: 25px; }
+      .about-text p { font-size: 16px; }
+      .about-cta { flex-direction: column; align-items: stretch; margin-top: 30px; }
+      .about-cta .btn-gold, .about-cta .btn-outline { text-align: center; }
+      .about-featured { padding: 36px 20px; }
+      .about-logo { width: min(240px, 68%); }
+
+      .shop-gallery-header { padding: 30px 20px 16px; }
+      .shop-gallery-grid { grid-template-columns: repeat(2, 1fr); gap: 3px; }
+      .lb-prev, .lb-next { padding: 10px; font-size: 28px; }
+      .lb-close { top: 14px; right: 18px; }
+    }
   </style>
 </head>
 <body>

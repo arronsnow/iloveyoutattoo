@@ -321,6 +321,8 @@
        exactly what an unfolded foldable (~884px) and any iPad were getting. */
     @media (max-width: 1100px) {
       .acc {
+        /* height of the photo banner on an open panel */
+        --mphoto: min(46vh, 360px);
         flex-direction: column;
         height: auto; max-height: none; min-height: 0;
       }
@@ -330,31 +332,54 @@
         border-top: 1px solid var(--border);
       }
       .acc-panel:first-child { border-top: none; }
-      .acc-panel.open { flex: 0 0 auto; min-height: 76vh; }
-      /* photo spans the full row again when stacked */
-      .acc-photo, .acc-panel.open .acc-photo {
-        right: 0; left: 0; width: auto;
+      /* sizes to its content - a fixed 76vh left big empty gaps under
+         short bios and cramped long ones */
+      .acc-panel.open { flex: 0 0 auto; min-height: 0; }
+
+      /* Collapsed row: photo fills the 62px strip behind the name. */
+      .acc-photo { position: absolute; inset: 0; width: auto; height: auto; }
+
+      /* Open: the photo becomes a banner in normal flow and the copy sits
+         BELOW it on solid background. Overlaying text on the portrait is
+         what read as squished on a phone - the picture was stretched to
+         the full panel height and the bio floated on top of a face. */
+      .acc-panel.open .acc-photo {
+        position: relative;
+        inset: auto;
+        width: 100%; height: var(--mphoto);
       }
+      .acc-panel.open .acc-photo img { object-position: 50% 20%; }
+
       .acc-name {
         left: 24px; top: 50%;
         transform: translate(0, -50%) rotate(0deg);
-        font-size: 20px;
+        font-size: 19px;
       }
+      /* name sits on the bottom of the banner, just above the copy */
       .acc-panel.open .acc-name {
-        left: 24px; top: 34px;
-        font-size: 42px;
+        left: 24px;
+        top: calc(var(--mphoto) - 58px);
+        font-size: clamp(30px, 8vw, 40px);
         transform: none;
       }
       .acc-info {
         position: static;
         left: auto; width: auto; height: auto;
-        padding: 96px 24px 36px;
+        padding: 24px 24px 34px;
         overflow: visible;
+        background: var(--bg);
       }
-      .acc-fade {
-        background: linear-gradient(to bottom,
-          color-mix(in srgb, var(--bg) 35%, transparent) 0%,
-          color-mix(in srgb, var(--bg) 88%, transparent) 30%, var(--bg) 55%);
+      .acc-role { margin-bottom: 12px; }
+      .acc-style { padding-bottom: 16px; margin-bottom: 16px; }
+      .acc-bio p { font-size: 15.5px; line-height: 1.7; }
+      .acc-actions { margin-top: 20px; }
+      .acc-actions .btn-gold, .btn-ig { flex: 1 1 auto; justify-content: center; text-align: center; }
+
+      /* fade only the foot of the banner so the name stays legible */
+      .acc-panel.open .acc-fade {
+        top: calc(var(--mphoto) - 150px);
+        bottom: auto; left: 0; right: 0; height: 150px;
+        background: linear-gradient(to bottom, transparent, var(--bg));
       }
       .acc-ghost { display: none; }
       .acc-hint { bottom: auto; top: 50%; left: auto; right: 20px; transform: translateY(-50%) rotate(90deg); }
