@@ -658,6 +658,21 @@ footer { background: var(--bg-deep); border-top: 1px solid var(--border); }
   .cta-banner { padding: 60px 48px; }
   .footer-col { padding: 44px 40px; }
   .footer-bottom { padding: 18px 40px; }
+
+  /* These had no responsive treatment at all and were overflowing.
+     A folded phone and an unfolded foldable both land in here. */
+  .values-layout { grid-template-columns: 1fr 1fr; }
+  .values-header-col { grid-column: 1 / -1; padding: 40px 44px 32px; }
+  .showcase-grid { grid-template-columns: repeat(3, 1fr); }
+  .bottom-cta, .bottom-info { padding: 56px 48px; }
+  .bottom-info { gap: 40px; }
+  .bottom-bar { padding: 16px 48px; gap: 24px; }
+  .cta-title { font-size: 48px; }
+  .quote-band { padding: 20px 48px; }
+  .quote-bird { width: min(360px, 72%); }
+  /* the quote is 74 characters - nowrap only survives on wide screens */
+  .big-quote { white-space: normal; }
+  .hero-logo-overlay { width: 210px; right: -10px; }
 }
 
 @media (max-width: 900px) {
@@ -687,13 +702,53 @@ footer { background: var(--bg-deep); border-top: 1px solid var(--border); }
   .page-hero { padding: 52px 28px 44px; }
   .page-content { padding: 44px 28px; }
   .page-hero-title { font-size: 40px; }
+
+  /* single column from here down */
+  .values-layout { grid-template-columns: 1fr; }
+  .values-header-col { padding: 40px 28px 28px; text-align: center; align-items: center; }
+  .value-card { padding: 36px 28px; }
+  .showcase-grid { grid-template-columns: repeat(2, 1fr); }
+
+  .bottom-section { grid-template-columns: 1fr; }
+  .bottom-cta {
+    border-right: none; border-bottom: 1px solid var(--border);
+    padding: 48px 28px;
+  }
+  .bottom-cta-inner { flex-direction: column; gap: 26px; text-align: center; }
+  .cta-title { font-size: 38px; }
+  .cta-btns { justify-content: center; }
+  .bottom-info {
+    flex-direction: column; align-items: flex-start;
+    gap: 32px; padding: 44px 28px;
+  }
+  .bottom-bar {
+    flex-direction: column; gap: 8px;
+    text-align: center; padding: 16px 28px;
+  }
+  .quote-bird { width: min(260px, 70%); }
+  /* the logo overlay fights the hero copy on small screens */
+  .hero-logo-overlay { display: none; }
 }
 
 @media (max-width: 540px) {
   .hero-title { font-size: 40px; }
   .artists-grid { grid-template-columns: 1fr 1fr; }
   .cta-title { font-size: 32px; }
-  .big-quote { font-size: 22px; }
+  .big-quote { font-size: 19px; }
   .section-title { font-size: 28px; }
   .gallery-grid { grid-template-columns: repeat(2, 1fr); }
+
+  /* buttons go full width rather than overflowing their row */
+  .hero-ctas { flex-direction: column; align-items: stretch; }
+  .hero-ctas .btn-gold, .hero-ctas .btn-outline { text-align: center; }
+  .cta-btns { flex-direction: column; width: 100%; }
+  .cta-btns .btn-gold, .cta-btns .btn-outline { text-align: center; }
+  .btn-gold, .btn-outline { padding: 13px 20px; font-size: 11.5px; }
+
+  .section-header { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .quote-bird { width: min(200px, 66%); }
+  .quote-band { padding: 36px 20px; }
+  .section-wrap { padding: 44px 20px; }
+  .bottom-cta, .bottom-info { padding: 40px 20px; }
+  .trust-num { font-size: 30px; }
 }

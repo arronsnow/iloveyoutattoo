@@ -312,8 +312,14 @@
 
     /* ── Narrow screens: the accordion turns vertical ──
        Strips stack as full-width rows with horizontal names; opening one
-       expands it downward. Same interaction, workable on a phone. */
-    @media (max-width: 860px) {
+       expands it downward. Same interaction, workable on a phone.
+
+       Threshold maths: 7 collapsed strips at 74px eat 518px, and the open
+       panel needs roughly 600px (190px photo + a readable info column).
+       So the horizontal layout only works above ~1100px. Below that it was
+       squeezing the info column to a couple of hundred pixels - which is
+       exactly what an unfolded foldable (~884px) and any iPad were getting. */
+    @media (max-width: 1100px) {
       .acc {
         flex-direction: column;
         height: auto; max-height: none; min-height: 0;
