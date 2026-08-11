@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex">
+  <title>Redirecting to The Team | I Love You Tattoo</title>
+  <link rel="canonical" href="team.html">
+  <link rel="stylesheet" href="../css/main.css">
+  <script src="../js/theme.js"></script>
+  <script src="../js/admin.js" defer></script>
+  <!-- The galleries now live on The Team page. Keep this stub so older
+       links, bookmarks and search results still land in the right place;
+       the #artist fragment is carried across. -->
+  <script>
+    location.replace('team.html' + (location.hash || ''));
+  </script>
+  <meta http-equiv="refresh" content="0; url=team.html">
+  <style>
+    .redir { padding: 140px 28px; text-align: center; }
+    .redir a { color: var(--gold-lt); border-bottom: 1px solid var(--border2); }
+  </style>
+</head>
+<body>
+  <div class="redir">
+    <p>The galleries have moved to <a href="team.html">The Team</a>.</p>
+  </div>
+</body>
+</html>

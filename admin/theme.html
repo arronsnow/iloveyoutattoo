@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en" data-admin-page>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Theme Editor - I Love You Tattoo</title>
+<link rel="stylesheet" href="../css/main.css">
+<script src="../js/admin.js"></script>
+<style>
+  /* The editor chrome deliberately uses its own neutral palette so it
+     stays readable no matter what the site theme is set to. */
+  :root {
+    --ed-bg:     #14100c;
+    --ed-panel:  #1c1712;
+    --ed-line:   #2f2820;
+    --ed-text:   #e9e2d6;
+    --ed-muted:  #9b8f7e;
+    --ed-accent: #c9a24a;
+  }
+  html, body { height: 100%; }
+  body {
+    margin: 0; background: var(--ed-bg); color: var(--ed-text);
+    font-family: 'DM Sans', system-ui, sans-serif; font-size: 14px;
+    overflow: hidden;
+  }
+  a { color: inherit; }
+
+  .ed-shell { display: grid; grid-template-rows: auto 1fr; height: 100vh; }
+
+  /* ── top bar ── */
+  .ed-top {
+    display: flex; align-items: center; gap: 18px;
+    padding: 0 20px; height: 56px;
+    background: var(--ed-panel); border-bottom: 1px solid var(--ed-line);
+  }
+  .ed-brand { font-weight: 600; letter-spacing: .02em; white-space: nowrap; }
+  .ed-brand span { color: var(--ed-muted); font-weight: 400; }
+  .ed-top-spacer { flex: 1; }
+  .ed-btn {
+    font: inherit; font-size: 12.5px; cursor: pointer;
+    padding: 8px 16px; border-radius: 5px;
+    background: transparent; color: var(--ed-text);
+    border: 1px solid var(--ed-line);
+    transition: border-color .15s, background .15s;
+    white-space: nowrap;
+  }
+  .ed-btn:hover { border-color: var(--ed-accent); }
+  .ed-btn.primary { background: var(--ed-accent); border-color: var(--ed-accent); color: #1a1208; font-weight: 500; }
+  .ed-btn.primary:hover { filter: brightness(1.08); }
+  .ed-select {
+    font: inherit; font-size: 12.5px; padding: 7px 10px; border-radius: 5px;
+    background: var(--ed-bg); color: var(--ed-text); border: 1px solid var(--ed-line);
+  }
+
+  .ed-body { display: grid; grid-template-columns: 330px 1fr; min-height: 0; }
+
+  /* ── controls ── */
+  .ed-side {
+    background: var(--ed-panel); border-right: 1px solid var(--ed-line);
+    overflow-y: auto; padding-bottom: 40px;
+  }
+  .ed-group-title {
+    font-size: 10.5px; letter-spacing: .16em; text-transform: uppercase;
+    color: var(--ed-muted); padding: 20px 18px 8px;
+  }
+  .ed-row {
+    display: grid; grid-template-columns: 1fr auto auto; align-items: center;
+    gap: 8px; padding: 6px 18px;
+  }
+  .ed-row label { font-size: 13px; }
+  .ed-row .hint { display: block; font-size: 10.5px; color: var(--ed-muted); margin-top: 1px; }
+  .ed-row input[type=color] {
+    -webkit-appearance: none; appearance: none;
+    width: 34px; height: 26px; padding: 0; cursor: pointer;
+    background: none; border: 1px solid var(--ed-line); border-radius: 4px;
+  }
+  .ed-row input[type=color]::-webkit-color-swatch-wrapper { padding: 2px; }
+  .ed-row input[type=color]::-webkit-color-swatch { border: none; border-radius: 2px; }
+  .ed-row input[type=text] {
+    font: inherit; font-size: 11.5px; font-family: ui-monospace, monospace;
+    width: 78px; padding: 5px 6px; border-radius: 4px;
+    background: var(--ed-bg); color: var(--ed-text); border: 1px solid var(--ed-line);
+  }
+  .ed-row select {
+    font: inherit; font-size: 12px; padding: 6px 8px; border-radius: 4px;
+    grid-column: 2 / 4; width: 122px;
+    background: var(--ed-bg); color: var(--ed-text); border: 1px solid var(--ed-line);
+  }
+
+  /* ── preview ── */
+  .ed-preview { display: flex; flex-direction: column; min-width: 0; background: #0d0a07; }
+  .ed-preview-bar {
+    display: flex; align-items: center; gap: 12px;
+    padding: 8px 16px; border-bottom: 1px solid var(--ed-line);
+    font-size: 12px; color: var(--ed-muted);
+  }
+  .ed-frame-wrap { flex: 1; min-height: 0; display: flex; justify-content: center; padding: 14px; }
+  .ed-frame-wrap iframe {
+    width: 100%; height: 100%; border: 1px solid var(--ed-line);
+    border-radius: 6px; background: #000; transition: width .2s;
+  }
+  .ed-frame-wrap.mobile iframe { width: 420px; }
+
+  .ed-note {
+    margin: 16px 18px 0; padding: 11px 13px;
+    background: rgba(201,162,74,.07); border: 1px solid rgba(201,162,74,.28);
+    border-radius: 6px; font-size: 11.5px; line-height: 1.6; color: var(--ed-muted);
+  }
+  .ed-note strong { color: var(--ed-text); }
+
+  /* ── export dialog ── */
+  dialog {
+    background: var(--ed-panel); color: var(--ed-text);
+    border: 1px solid var(--ed-line); border-radius: 8px;
+    padding: 0; width: min(680px, 92vw);
+  }
+  dialog::backdrop { background: rgba(0,0,0,.6); }
+  .dlg-head { padding: 16px 20px; border-bottom: 1px solid var(--ed-line); font-weight: 600; }
+  .dlg-body { padding: 16px 20px; }
+  .dlg-body p { font-size: 12.5px; color: var(--ed-muted); margin: 0 0 12px; line-height: 1.6; }
+  .dlg-body textarea {
+    width: 100%; height: 300px; resize: vertical;
+    font-family: ui-monospace, monospace; font-size: 12px; line-height: 1.55;
+    background: var(--ed-bg); color: var(--ed-text);
+    border: 1px solid var(--ed-line); border-radius: 6px; padding: 12px;
+  }
+  .dlg-foot { padding: 14px 20px; border-top: 1px solid var(--ed-line); display: flex; gap: 10px; justify-content: flex-end; }
+
+  @media (max-width: 900px) {
+    .ed-body { grid-template-columns: 1fr; }
+    .ed-side { max-height: 45vh; }
+  }
+</style>
+</head>
+<body>
+<div id="adm-locked" style="display:none;max-width:460px;margin:0 auto;padding:130px 28px;text-align:center;font-family:var(--font-body);">
+  <h1 style="font-family:var(--font-display);font-size:34px;font-weight:400;color:var(--cream);margin:0 0 12px;">Not signed in</h1>
+  <p style="font-size:14.5px;line-height:1.75;color:var(--muted);margin:0 0 26px;">This tool is for admins. If you signed in as an artist, use your profile instead.</p>
+  <a class="btn-outline" href="index.html" style="margin-right:10px;">Admin panel</a>
+  <a class="btn-gold" href="../index.html">&#8592; Back to the site</a>
+</div>
+<script>
+  // Gate before anything renders. Same caveat as everywhere: this hides
+  // the tool, it does not secure it - lock /admin/ at the host.
+  // admin or owner only - an artist account can sign in but must not
+  // be able to restyle the whole site
+  if (!window.ILYTAdmin || !window.ILYTAdmin.atLeast('admin')) {
+    document.documentElement.setAttribute('data-locked','1');
+  }
+</script>
+<style>
+  html[data-locked] .ed-shell { display: none !important; }
+  html[data-locked] #adm-locked { display: block !important; }
+  html[data-locked] body { overflow: auto !important; }
+</style>
+<div class="ed-shell">
+
+  <div class="ed-top">
+    <div class="ed-brand">Theme Editor <span>· I Love You Tattoo</span></div>
+    <select class="ed-select" id="preset">
+      <option value="">Load a preset…</option>
+      <option value="brownGold">Brown &amp; Gold (current)</option>
+      <option value="brownGoldGreen">Brown · Gold · Green</option>
+      <option value="forest">Forest Green</option>
+      <option value="navy">Navy &amp; Gold</option>
+    </select>
+    <div class="ed-top-spacer"></div>
+    <button class="ed-btn" id="btn-revert">Revert changes</button>
+    <button class="ed-btn" id="btn-save">Save to this browser</button>
+    <button class="ed-btn primary" id="btn-export">Export CSS →</button>
+  </div>
+
+  <div class="ed-body">
+    <aside class="ed-side" id="controls">
+      <div class="ed-note">
+        <strong>How this works.</strong> Edits preview instantly on the right.
+        <em>Save to this browser</em> keeps them on your machine so you can live with
+        them for a bit - visitors won't see them. When you're happy,
+        <em>Export CSS</em> and paste the block into <code>css/main.css</code> to ship it.
+      </div>
+      <!-- control rows injected here -->
+    </aside>
+
+    <section class="ed-preview">
+      <div class="ed-preview-bar">
+        <label>Preview page
+          <select class="ed-select" id="page" style="margin-left:6px;">
+            <option value="../index.html">Home</option>
+            <option value="../pages/team.html">The Team (galleries)</option>
+            <option value="../pages/events.html">Events (light sections)</option>
+            <option value="../pages/about.html">The Shop</option>
+            <option value="../pages/booking.html">Consult</option>
+            <option value="../pages/aftercare.html">Aftercare</option>
+          </select>
+        </label>
+        <button class="ed-btn" id="btn-width" data-mode="desktop">Desktop</button>
+        <span id="status"></span>
+      </div>
+      <div class="ed-frame-wrap" id="framewrap">
+        <iframe id="frame" src="../index.html" title="Site preview"></iframe>
+      </div>
+    </section>
+  </div>
+</div>
+
+<dialog id="export-dlg">
+  <div class="dlg-head">Paste this into <code>css/main.css</code></div>
+  <div class="dlg-body">
+    <p>Replace the existing <code>:root { … }</code> block near the top of
+       <code>css/main.css</code> with this. Derived values (borders, washes,
+       scrims) aren't listed - they follow the accent automatically.</p>
+    <textarea id="export-out" spellcheck="false" readonly></textarea>
+  </div>
+  <div class="dlg-foot">
+    <button class="ed-btn" id="btn-download">Download .css</button>
+    <button class="ed-btn" id="btn-copy">Copy to clipboard</button>
+    <button class="ed-btn primary" id="btn-close">Done</button>
+  </div>
+</dialog>
+
+<script src="../js/theme.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  /* ── Token definitions. Order here is the order shown in the sidebar. ── */
+  var GROUPS = [
+    { title: 'Typography', tokens: [
+      { key: 'font-display', label: 'Headings',   hint: 'Titles, artist names', type: 'font',
+        options: ['Playfair Display','Cormorant Garamond','Libre Baskerville','DM Serif Display','Bodoni Moda','Abril Fatface'], generic: 'serif' },
+      { key: 'font-body',    label: 'Body / UI',  hint: 'Nav, buttons, labels', type: 'font',
+        options: ['DM Sans','Inter','Work Sans','Montserrat','Karla','Jost'], generic: 'sans-serif' },
+      { key: 'font-accent',  label: 'Bios',       hint: 'Artist bios, quotes',  type: 'font',
+        options: ['Crimson Text','Lora','EB Garamond','Spectral','Cormorant Garamond'], generic: 'serif' }
+    ]},
+    { title: 'Surfaces', tokens: [
+      { key: 'bg',      label: 'Page background' },
+      { key: 'bg2',     label: 'Raised surface',  hint: 'Hero fallback, cards' },
+      { key: 'bg3',     label: 'Panel',           hint: 'Value cards, gallery cells' },
+      { key: 'bg-deep', label: 'Footer',          hint: 'Footer + bottom bar' },
+      { key: 'shade',   label: 'Nav / scrim' },
+      { key: 'scrim',   label: 'Hero gradient' }
+    ]},
+    { title: 'Accents', tokens: [
+      { key: 'accent',      label: 'Primary',      hint: 'Buttons, rules, links' },
+      { key: 'accent-lt',   label: 'Primary light', hint: 'Hover, italic titles' },
+      { key: 'accent-dim',  label: 'Primary dim' },
+      { key: 'accent2',     label: 'Secondary',    hint: '"Open" hours, badges' },
+      { key: 'accent2-dim', label: 'Secondary dim' }
+    ]},
+    { title: 'Text', tokens: [
+      { key: 'cream', label: 'Headings' },
+      { key: 'text',  label: 'Body text' },
+      { key: 'muted', label: 'Muted' },
+      { key: 'faint', label: 'Faint',  hint: 'Closed days, fine print' }
+    ]}
+  ];
+
+  var PRESETS = {
+    brownGold: {
+      'bg':'#1a1208','bg2':'#201508','bg3':'#2c1f0a','bg-deep':'#100b02','shade':'#120a02','scrim':'#160e04',
+      'accent':'#b8892a','accent-lt':'#d4a94a','accent-dim':'#7a5c1a','accent2':'#62b87a','accent2-dim':'#3f7d52',
+      'cream':'#f2e8d0','text':'#e8dcc8','muted':'#9a8a6a','faint':'#5a4e3a'
+    },
+    brownGoldGreen: {
+      'bg':'#161410','bg2':'#1c1a14','bg3':'#26241b','bg-deep':'#0e0d09','shade':'#100f0b','scrim':'#14130e',
+      'accent':'#c19a3d','accent-lt':'#dcb75c','accent-dim':'#836a21',
+      'accent2':'#6f9c5a','accent2-dim':'#4a6b3c',
+      'cream':'#f2ecd9','text':'#e5ddc9','muted':'#9c9378','faint':'#5c5745'
+    },
+    forest: {
+      'bg':'#0f1611','bg2':'#131c16','bg3':'#1b271f','bg-deep':'#080d0a','shade':'#0a110c','scrim':'#0d1610',
+      'accent':'#c9a24a','accent-lt':'#e0bd68','accent-dim':'#8a6f2e','accent2':'#7bbd8a','accent2-dim':'#4d7d59',
+      'cream':'#eef2e6','text':'#dde3d4','muted':'#8c9a86','faint':'#4e5a4a'
+    },
+    navy: {
+      'bg':'#0d1220','bg2':'#111829','bg3':'#1a2338','bg-deep':'#070b14','shade':'#090e19','scrim':'#0b111e',
+      'accent':'#c9a24a','accent-lt':'#e2bd66','accent-dim':'#8a6c2c','accent2':'#5c9ec4','accent2-dim':'#3d6a86',
+      'cream':'#eef1f7','text':'#dbe1ec','muted':'#8592a8','faint':'#4a5468'
+    }
+  };
+
+  var COLOR_KEYS = [];
+  var FONT_KEYS  = [];
+  GROUPS.forEach(function (g) {
+    g.tokens.forEach(function (t) {
+      (t.type === 'font' ? FONT_KEYS : COLOR_KEYS).push(t.key);
+    });
+  });
+  var ALL_KEYS = COLOR_KEYS.concat(FONT_KEYS);
+
+  var frame     = document.getElementById('frame');
+  var controls  = document.getElementById('controls');
+  var statusEl  = document.getElementById('status');
+  var inputs    = {};   // key -> {color, text} or {select}
+  var theme     = {};   // working state
+  var baseline  = {};   // values from main.css, for Revert
+
+  /* ── Read the shipped defaults straight off this page's own :root,
+        since it loads the same stylesheet the site uses. ── */
+  function readDefaults() {
+    var cs = getComputedStyle(document.documentElement);
+    var out = {};
+    ALL_KEYS.forEach(function (k) {
+      out[k] = cs.getPropertyValue('--' + k).trim();
+    });
+    return out;
+  }
+
+  function normalizeHex(v) {
+    v = String(v || '').trim();
+    if (/^#[0-9a-f]{6}$/i.test(v)) return v.toLowerCase();
+    if (/^#[0-9a-f]{3}$/i.test(v)) {
+      return ('#' + v[1] + v[1] + v[2] + v[2] + v[3] + v[3]).toLowerCase();
+    }
+    return null;
+  }
+
+  function stackFor(family, generic) {
+    return "'" + family + "', " + generic;
+  }
+
+  function familyOf(stack) {
+    var m = String(stack).match(/^\s*['"]?([^'",]+)['"]?/);
+    return m ? m[1].trim() : '';
+  }
+
+  /* ── Build the sidebar ── */
+  function buildControls() {
+    GROUPS.forEach(function (group) {
+      var h = document.createElement('div');
+      h.className = 'ed-group-title';
+      h.textContent = group.title;
+      controls.appendChild(h);
+
+      group.tokens.forEach(function (tok) {
+        var row = document.createElement('div');
+        row.className = 'ed-row';
+
+        var lab = document.createElement('label');
+        lab.innerHTML = tok.label + (tok.hint ? '<span class="hint">' + tok.hint + '</span>' : '');
+        lab.htmlFor = 'in-' + tok.key;
+        row.appendChild(lab);
+
+        if (tok.type === 'font') {
+          var sel = document.createElement('select');
+          sel.id = 'in-' + tok.key;
+          tok.options.forEach(function (fam) {
+            var o = document.createElement('option');
+            o.value = stackFor(fam, tok.generic);
+            o.textContent = fam;
+            sel.appendChild(o);
+          });
+          sel.addEventListener('change', function () {
+            set(tok.key, sel.value);
+          });
+          row.appendChild(sel);
+          inputs[tok.key] = { select: sel };
+        } else {
+          var color = document.createElement('input');
+          color.type = 'color';
+          color.id = 'in-' + tok.key;
+
+          var text = document.createElement('input');
+          text.type = 'text';
+          text.spellcheck = false;
+
+          color.addEventListener('input', function () {
+            text.value = color.value;
+            set(tok.key, color.value);
+          });
+          text.addEventListener('change', function () {
+            var hex = normalizeHex(text.value);
+            if (!hex) { text.value = theme[tok.key]; return; }
+            color.value = hex; text.value = hex;
+            set(tok.key, hex);
+          });
+
+          row.appendChild(color);
+          row.appendChild(text);
+          inputs[tok.key] = { color: color, text: text };
+        }
+        controls.appendChild(row);
+      });
+    });
+  }
+
+  /* ── State ── */
+  function set(key, value) {
+    theme[key] = value;
+    push();
+    flash('Unsaved changes');
+  }
+
+  function syncInputs() {
+    ALL_KEYS.forEach(function (k) {
+      var ctl = inputs[k], v = theme[k];
+      if (!ctl || !v) return;
+      if (ctl.select) {
+        var fam = familyOf(v);
+        Array.prototype.some.call(ctl.select.options, function (o) {
+          if (familyOf(o.value) === fam) { ctl.select.value = o.value; return true; }
+          return false;
+        });
+      } else {
+        var hex = normalizeHex(v);
+        if (hex) ctl.color.value = hex;
+        ctl.text.value = v;
+      }
+    });
+  }
+
+  /* Push the working theme into the preview iframe. */
+  function push() {
+    if (!frame.contentWindow) return;
+    frame.contentWindow.postMessage({ type: 'ilyt-theme', theme: theme }, '*');
+    // Also apply locally so the editor's own dialogs match.
+    FONT_KEYS.forEach(function (k) {
+      if (theme[k] && window.ILYTTheme) window.ILYTTheme.ensureFont(theme[k]);
+    });
+  }
+
+  function flash(msg) {
+    statusEl.textContent = msg;
+    clearTimeout(flash._t);
+    flash._t = setTimeout(function () { statusEl.textContent = ''; }, 2600);
+  }
+
+  function applyPreset(name) {
+    var p = PRESETS[name];
+    if (!p) return;
+    Object.keys(p).forEach(function (k) { theme[k] = p[k]; });
+    syncInputs(); push();
+    flash('Preset loaded - not saved yet');
+  }
+
+  /* ── Export ── */
+  function buildCSS() {
+    var lines = [];
+    lines.push(':root {');
+    lines.push('  /* ── Typography ── */');
+    FONT_KEYS.forEach(function (k) {
+      lines.push('  --' + pad(k) + ': ' + theme[k] + ';');
+    });
+    GROUPS.forEach(function (g) {
+      if (g.title === 'Typography') return;
+      lines.push('');
+      lines.push('  /* ── ' + g.title + ' ── */');
+      g.tokens.forEach(function (t) {
+        lines.push('  --' + pad(t.key) + ': ' + theme[t.key] + ';');
+      });
+    });
+    lines.push('');
+    lines.push('  /* ── Derived - leave these alone, they follow --accent ── */');
+    lines.push('  --border:      color-mix(in srgb, var(--accent) 20%, transparent);');
+    lines.push('  --border2:     color-mix(in srgb, var(--accent) 45%, transparent);');
+    lines.push('  --accent-wash: color-mix(in srgb, var(--accent) 8%,  transparent);');
+    lines.push('  --text-rule:   color-mix(in srgb, var(--text)   35%, transparent);');
+    lines.push('');
+    lines.push('  /* ── Legacy aliases ── */');
+    lines.push('  --gold:     var(--accent);');
+    lines.push('  --gold-lt:  var(--accent-lt);');
+    lines.push('  --gold-dim: var(--accent-dim);');
+    lines.push('}');
+    return lines.join('\n');
+  }
+
+  function pad(k) { return (k + '            ').slice(0, Math.max(12, k.length)); }
+
+  /* ── Wire up ── */
+  buildControls();
+  baseline = readDefaults();
+  var saved = (window.ILYTTheme && window.ILYTTheme.read()) || null;
+  ALL_KEYS.forEach(function (k) {
+    theme[k] = (saved && saved[k]) || baseline[k];
+  });
+  syncInputs();
+
+  frame.addEventListener('load', push);
+
+  document.getElementById('preset').addEventListener('change', function () {
+    applyPreset(this.value);
+    this.value = '';
+  });
+
+  document.getElementById('page').addEventListener('change', function () {
+    frame.src = this.value;
+  });
+
+  document.getElementById('btn-width').addEventListener('click', function () {
+    var wrap = document.getElementById('framewrap');
+    var mobile = wrap.classList.toggle('mobile');
+    this.textContent = mobile ? 'Mobile' : 'Desktop';
+  });
+
+  document.getElementById('btn-save').addEventListener('click', function () {
+    try {
+      localStorage.setItem(window.ILYTTheme.STORAGE_KEY, JSON.stringify(theme));
+      flash('Saved to this browser');
+    } catch (e) {
+      flash('Could not save: ' + e.message);
+    }
+  });
+
+  document.getElementById('btn-revert').addEventListener('click', function () {
+    try { localStorage.removeItem(window.ILYTTheme.STORAGE_KEY); } catch (e) {}
+    ALL_KEYS.forEach(function (k) { theme[k] = baseline[k]; });
+    syncInputs();
+    if (frame.contentWindow) {
+      frame.contentWindow.postMessage(
+        { type: 'ilyt-theme', reset: true, keys: ALL_KEYS, theme: {} }, '*');
+    }
+    flash('Reverted to the stylesheet defaults');
+  });
+
+  var dlg = document.getElementById('export-dlg');
+  document.getElementById('btn-export').addEventListener('click', function () {
+    document.getElementById('export-out').value = buildCSS();
+    dlg.showModal();
+  });
+  document.getElementById('btn-close').addEventListener('click', function () { dlg.close(); });
+  document.getElementById('btn-copy').addEventListener('click', function () {
+    var ta = document.getElementById('export-out');
+    navigator.clipboard.writeText(ta.value).then(
+      function () { this.textContent = 'Copied ✓'; }.bind(this),
+      function () { ta.select(); document.execCommand('copy'); this.textContent = 'Copied ✓'; }.bind(this)
+    );
+    setTimeout(function () {
+      document.getElementById('btn-copy').textContent = 'Copy to clipboard';
+    }, 1800);
+  });
+  document.getElementById('btn-download').addEventListener('click', function () {
+    var blob = new Blob([buildCSS()], { type: 'text/css' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'theme.css';
+    a.click();
+    URL.revokeObjectURL(a.href);
+  });
+})();
+</script>
+</body>
+</html>

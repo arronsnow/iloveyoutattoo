@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Shop | I Love You Tattoo</title>
+  <link rel="stylesheet" href="../css/main.css">
+  <script src="../js/theme.js"></script>
+  <script src="../js/admin.js" defer></script>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    .shop-video-hero {
+      position: relative; width: 100%;
+      height: 480px; overflow: hidden;
+      background: #000;
+    }
+    .shop-video {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      object-fit: cover;
+    }
+    .shop-video-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(
+        to right,
+        rgba(10,5,0,0.97) 0%,
+        rgba(10,5,0,0.92) 25%,
+        rgba(10,5,0,0.55) 55%,
+        rgba(10,5,0,0.0) 80%
+      );
+      display: flex;
+      align-items: center;
+    }
+    .shop-video-content {
+      padding: 0 80px;
+      max-width: 560px;
+    }
+    .shop-video-content .page-hero-eyebrow {
+      margin-bottom: 14px;
+    }
+    .shop-video-content .page-hero-title {
+      font-size: 64px;
+      margin-bottom: 16px;
+    }
+    .shop-video-content .page-hero-sub {
+      margin-top: 0;
+    }
+    .about-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      border-bottom: 1px solid var(--border);
+    }
+    .about-text {
+      padding: 72px 80px;
+      border-right: 1px solid var(--border);
+    }
+    .about-text h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 38px; font-weight: 400;
+      color: var(--cream); line-height: 1.25;
+      margin-bottom: 36px;
+    }
+    .about-text h2 em { font-style: italic; color: var(--gold-lt); }
+    .about-text p {
+      font-family: 'Crimson Text', serif;
+      font-size: 19px; line-height: 1.85;
+      color: var(--muted); margin-bottom: 22px;
+    }
+    .about-text p strong { color: var(--cream); font-weight: 600; }
+    .about-cta { margin-top: 40px; display: flex; gap: 16px; flex-wrap: wrap; }
+    .about-featured {
+      background: var(--bg3);
+      display: flex; align-items: center; justify-content: center;
+      min-height: 400px;
+    }
+    .about-logo { width: 460px; height: auto; }
+    .shop-gallery-section { border-bottom: 1px solid var(--border); }
+    .shop-gallery-header { padding: 52px 80px 32px; }
+    .shop-gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 4px;
+      padding: 0 0 4px;
+    }
+    .shop-gallery-item {
+      aspect-ratio: 1; overflow: hidden;
+      background: var(--bg3); cursor: pointer;
+    }
+    .shop-gallery-item img {
+      width: 100%; height: 100%;
+      object-fit: cover; display: block;
+      transition: transform 0.4s ease;
+    }
+    .shop-gallery-item:hover img { transform: scale(1.06); }
+    .lightbox {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.92); z-index: 9999;
+      align-items: center; justify-content: center;
+    }
+    .lightbox.active { display: flex; }
+    .lightbox-img { max-width: 90vw; max-height: 90vh; object-fit: contain; }
+    .lb-close {
+      position: absolute; top: 24px; right: 32px;
+      font-size: 32px; color: var(--muted);
+      cursor: pointer; background: none; border: none;
+    }
+    .lb-close:hover { color: var(--cream); }
+    .lb-prev, .lb-next {
+      position: absolute; top: 50%; transform: translateY(-50%);
+      font-size: 36px; color: var(--muted);
+      cursor: pointer; background: none; border: none; padding: 20px;
+    }
+    .lb-prev { left: 8px; }
+    .lb-next { right: 8px; }
+    .lb-prev:hover, .lb-next:hover { color: var(--gold-lt); }
+  </style>
+</head>
+<body>
+
+  <nav id="main-nav">
+    <div class="nav-logo"><a href="../index.html"><img src="../images/logo.png" alt="I Love You Tattoo"></a></div>
+    <button class="nav-hamburger" id="nav-hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+    <div class="nav-links" id="nav-links">
+      <a href="../index.html">Home</a>
+      <div class="nav-dropdown">
+        <a href="team.html" class="nav-dropdown-trigger">The Team ▾</a>
+        <div class="nav-dropdown-menu">
+          <div class="nav-dropdown-menu-inner">
+            <a href="team.html#jenni">Jenni</a>
+            <a href="team.html#cory">Cory</a>
+            <a href="team.html#skylar">Skylar</a>
+            <a href="team.html#millie">Millie</a>
+            <a href="team.html#gia">Gia</a>
+            <a href="team.html#remy">Remy</a>
+            <a href="team.html#eathan">Eathan</a>
+            <a href="team.html#zoie">Zoie</a>
+          </div>
+        </div>
+      </div>
+      <a href="about.html" class="active">The Shop</a>
+      <a href="guests.html">Guest Artists</a>
+      <a href="events.html">Events</a>
+      <a href="aftercare.html">Aftercare</a>
+      <a href="store.html">Store</a>
+    </div>
+    <div class="nav-right">
+      <a href="https://instagram.com/iloveyou.tattoo" target="_blank" class="nav-social" aria-label="Instagram">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+      </a>
+      <a href="http://facebook.com/143tattoo" target="_blank" class="nav-social" aria-label="Facebook">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+      </a>
+      <a href="booking.html" class="nav-book">Consult</a>
+    </div>
+  </nav>
+
+  <div class="shop-video-hero">
+    <video autoplay muted loop playsinline class="shop-video">
+      <source src="../images/shop-video.webm" type="video/webm">
+    </video>
+    <div class="shop-video-overlay">
+      <div class="shop-video-content">
+        <div class="page-hero-eyebrow">Est. 2021 · Maryville, Tennessee</div>
+        <h1 class="page-hero-title">The <em>Shop</em></h1>
+        <p class="page-hero-sub">143 Cherokee Heights Drive · Maryville, TN 37801</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="about-layout">
+    <div class="about-text">
+      <h2>Built on <em>love,</em><br>exceptional work &amp; each other.</h2>
+      <p><strong>I Love You Tattoo was officially opened in March of 2021.</strong> Jenni envisioned a welcoming shop that would foster a strong reputation built on love, exceptional work, a positive attitude, and encouragement for all.</p>
+      <p>The relationship between our talented artists embodies all of these wonderful attributes! We continuously push each other to improve and help each other out whenever possible. Work truly doesn't feel like work when it's shared with your favorite people!</p>
+      <p>We genuinely enjoy hosting <strong>art nights</strong>, which are open to all artists in the community, where we can come together to paint, draw, and provide constructive criticism during our group critiques.</p>
+      <p>Additionally, our artists frequently <strong>travel to conventions and guest spots</strong>, expanding their skills and perspectives. We also make it a point to host guest artists whenever we have the opportunity!</p>
+      <p>We can't wait to make memories with you!</p>
+      <div class="about-cta">
+        <a href="booking.html" class="btn-gold">Request a Consult →</a>
+        <a href="team.html" class="btn-outline">Meet the Team</a>
+      </div>
+    </div>
+    <div class="about-featured">
+      <img src="../images/logo-transparent.png" alt="I Love You Tattoo" class="about-logo">
+    </div>
+  </div>
+
+  <div class="shop-gallery-section">
+    <div class="shop-gallery-header">
+      <div class="section-eyebrow">Inside the Studio</div>
+      <h2 class="section-title">From the shop</h2>
+    </div>
+    <div class="shop-gallery-grid" id="shop-grid"></div>
+  </div>
+
+  <div class="lightbox" id="lightbox">
+    <button class="lb-close" id="lb-close">✕</button>
+    <button class="lb-prev" id="lb-prev">‹</button>
+    <img class="lightbox-img" id="lb-img" src="" alt="">
+    <button class="lb-next" id="lb-next">›</button>
+  </div>
+
+  <div class="bottom-bar">
+    <span>© 2025 I Love You Tattoo · Est. 2021 · Maryville, TN · 143 Cherokee Heights Drive</span>
+    <span>(865) 724-1322 · <a href="mailto:iloveyoutattoo143@gmail.com">iloveyoutattoo143@gmail.com</a></span>
+  </div>
+
+  <script src="../js/main.js"></script>
+  <script>
+    /* Shop photos are numbered contiguously: about_001 … about_TOTAL.
+       Shuffle the whole set and show a slice, so the wall looks different
+       on every visit rather than always showing the same first 40.
+       If you add photos to images/the shop/, bump TOTAL. */
+    var TOTAL = 183;
+    var SHOW  = 40;
+
+    var pool = [];
+    for (var i = 1; i <= TOTAL; i++) {
+      pool.push('../images/the shop/about_' + String(i).padStart(3, '0') + '.jpg');
+    }
+    for (var i = pool.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var swap = pool[i]; pool[i] = pool[j]; pool[j] = swap;
+    }
+    var imgs = pool.slice(0, SHOW);
+
+    var grid = document.getElementById('shop-grid');
+    imgs.forEach(function(src, idx) {
+      var item = document.createElement('div');
+      item.className = 'shop-gallery-item';
+      var img = document.createElement('img');
+      img.src = src;
+      img.loading = 'lazy';
+      img.alt = 'Shop photo';
+      img.onerror = function() { item.style.display = 'none'; };
+      item.appendChild(img);
+      item.addEventListener('click', function() { openLb(idx); });
+      grid.appendChild(item);
+    });
+
+    var current = 0;
+    var lb = document.getElementById('lightbox');
+    var lbImg = document.getElementById('lb-img');
+
+    function openLb(idx) {
+      current = idx;
+      lbImg.src = imgs[current];
+      lb.classList.add('active');
+    }
+    function closeLb() { lb.classList.remove('active'); }
+    function prevLb() { current = (current - 1 + imgs.length) % imgs.length; lbImg.src = imgs[current]; }
+    function nextLb() { current = (current + 1) % imgs.length; lbImg.src = imgs[current]; }
+
+    document.getElementById('lb-close').addEventListener('click', closeLb);
+    document.getElementById('lb-prev').addEventListener('click', prevLb);
+    document.getElementById('lb-next').addEventListener('click', nextLb);
+    lb.addEventListener('click', function(e) { if (e.target === lb) closeLb(); });
+    document.addEventListener('keydown', function(e) {
+      if (!lb.classList.contains('active')) return;
+      if (e.key === 'Escape') closeLb();
+      if (e.key === 'ArrowLeft') prevLb();
+      if (e.key === 'ArrowRight') nextLb();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,46 @@
+{
+  "_comment": [
+    "Reviews shown in the slider on the homepage.",
+    "",
+    "HOW TO FILL THIS WITH THE REAL 68 - see README, 'Google reviews'.",
+    "Google's public Places API only ever returns 5 reviews and does not",
+    "attach reviewer photos, so this file is populated either by a one-off",
+    "export from the Google Business Profile API or by a review service.",
+    "",
+    "Fields per review:",
+    "  author   required, display name",
+    "  rating   required, 1-5",
+    "  text     required",
+    "  date     optional, ISO yyyy-mm-dd - shown as 'March 2025'",
+    "  avatar   optional, path or URL to the reviewer's profile picture",
+    "  photos   optional, array of image paths the reviewer attached",
+    "  url      optional, direct link to the review on Google",
+    "",
+    "The three below are the placeholders that were hardcoded on the",
+    "homepage. Replace them with the real ones."
+  ],
+
+  "source": "Google",
+  "profileUrl": "https://g.page/r/CYzF0tUok-OBEB0",
+  "reviewUrl": "https://g.page/r/CYzF0tUok-OBEB0/review",
+  "totalCount": 68,
+  "averageRating": 5.0,
+
+  "reviews": [
+    {
+      "author": "Sarah M.",
+      "rating": 5,
+      "text": "Incredible experience from start to finish. My artist really listened and brought my idea to life exactly how I pictured it."
+    },
+    {
+      "author": "Jordan T.",
+      "rating": 5,
+      "text": "Clean studio, welcoming vibes, and seriously talented artists. I've been back three times and I'll keep coming back."
+    },
+    {
+      "author": "Alex R.",
+      "rating": 5,
+      "text": "The aftercare instructions they gave me were so thorough. Healed perfectly. I already have my next appointment booked."
+    }
+  ]
+}

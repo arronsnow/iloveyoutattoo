@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Request a Consult | I Love You Tattoo</title>
+  <link rel="stylesheet" href="../css/main.css">
+  <script src="../js/theme.js"></script>
+  <script src="../js/admin.js" defer></script>
+  <style>
+    /* ── Consult: form alongside the practical details ── */
+    .consult-layout {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 56px;
+      align-items: start;
+      padding: 56px 80px 64px;
+      border-bottom: 1px solid var(--border);
+    }
+    .consult-copy h2 {
+      font-family: var(--font-display);
+      font-size: 34px; font-weight: 400; line-height: 1.25;
+      color: var(--cream); margin-bottom: 18px;
+    }
+    .consult-copy h2 em { font-style: italic; color: var(--gold-lt); }
+    .consult-copy > p {
+      font-family: var(--font-accent);
+      font-size: 18px; line-height: 1.8;
+      color: var(--muted); margin-bottom: 18px; max-width: 46ch;
+    }
+
+    /* numbered "what happens next" - sets expectations so the form
+       feels like a first step rather than a commitment */
+    .consult-steps { list-style: none; margin: 30px 0 32px; padding: 0; max-width: 46ch; }
+    .consult-steps li {
+      position: relative; padding-left: 44px; margin-bottom: 18px;
+      font-size: 14.5px; line-height: 1.7; color: var(--muted);
+    }
+    .consult-steps li strong { color: var(--cream); font-weight: 500; display: block; margin-bottom: 2px; }
+    .consult-steps li::before {
+      counter-increment: step;
+      content: counter(step);
+      position: absolute; left: 0; top: 1px;
+      width: 26px; height: 26px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-body); font-size: 11.5px;
+      color: var(--gold-lt); border: 1px solid var(--border2);
+    }
+    .consult-steps { counter-reset: step; }
+
+    .consult-facts { display: flex; flex-direction: column; gap: 11px; margin-top: 30px; }
+    .consult-fact { display: flex; align-items: baseline; gap: 14px; font-size: 13.5px; }
+    .consult-fact dt {
+      color: var(--gold-dim); width: 84px; flex-shrink: 0;
+      font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.1em;
+    }
+    .consult-fact dd { color: var(--muted); margin: 0; }
+
+    /* ── the JotForm app embed ── */
+    .consult-form { position: sticky; top: 84px; }
+    .consult-form-frame {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-top: 2px solid var(--gold);
+      padding: 14px;
+    }
+    .consult-form-frame iframe {
+      display: block; width: 375px; height: 600px; border: 0;
+      max-width: 100%;
+    }
+    .consult-form-label {
+      font-size: 10.5px; letter-spacing: 0.16em; text-transform: uppercase;
+      color: var(--gold); margin-bottom: 12px; text-align: center;
+    }
+    .consult-form-fallback {
+      margin-top: 12px; text-align: center;
+      font-size: 12px; color: var(--muted);
+    }
+    .consult-form-fallback a { color: var(--gold-lt); border-bottom: 1px solid var(--border2); }
+
+    /* ── piercing + walk-ins ── */
+    .alt-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--border); }
+    .alt-option { background: var(--bg2); padding: 44px 48px; display: block; color: inherit; transition: background 0.2s; }
+    .alt-option:hover { background: var(--bg3); }
+    .alt-badge { font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold); margin-bottom: 16px; }
+    .alt-title { font-family: var(--font-display); font-size: 28px; color: var(--cream); margin-bottom: 12px; }
+    .alt-title em { font-style: italic; color: var(--gold-lt); }
+    .alt-desc { font-size: 14.5px; color: var(--muted); line-height: 1.75; margin-bottom: 24px; max-width: 380px; }
+
+    .info-note { background: var(--bg3); border: 1px solid var(--border); padding: 28px 36px; margin-top: 28px; }
+    .info-note p { font-size: 14px; color: var(--muted); line-height: 1.7; }
+    .info-note strong { color: var(--cream); }
+
+    @media (max-width: 1080px) {
+      .consult-layout { grid-template-columns: 1fr; gap: 40px; padding: 44px 28px 52px; }
+      .consult-form { position: static; justify-self: center; }
+    }
+    @media (max-width: 700px) {
+      .alt-grid { grid-template-columns: 1fr; }
+      .alt-option { padding: 36px 24px; }
+      .consult-form-frame { padding: 10px; }
+    }
+  </style>
+</head>
+<body>
+  <nav id="main-nav">
+    <div class="nav-logo"><a href="../index.html"><img src="../images/logo.png" alt="I Love You Tattoo"></a></div>
+    <button class="nav-hamburger" id="nav-hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+    <div class="nav-links" id="nav-links">
+      <a href="../index.html">Home</a>
+      <div class="nav-dropdown">
+        <a href="team.html" class="nav-dropdown-trigger">The Team ▾</a>
+        <div class="nav-dropdown-menu">
+          <div class="nav-dropdown-menu-inner">
+            <a href="team.html#jenni">Jenni</a>
+            <a href="team.html#cory">Cory</a>
+            <a href="team.html#skylar">Skylar</a>
+            <a href="team.html#millie">Millie</a>
+            <a href="team.html#gia">Gia</a>
+            <a href="team.html#remy">Remy</a>
+            <a href="team.html#eathan">Eathan</a>
+            <a href="team.html#zoie">Zoie</a>
+          </div>
+        </div>
+      </div>
+      <a href="about.html">The Shop</a>
+      <a href="guests.html">Guest Artists</a>
+      <a href="events.html">Events</a>
+      <a href="aftercare.html">Aftercare</a>
+      <a href="store.html">Store</a>
+    </div>
+    <div class="nav-right">
+      <a href="https://instagram.com/iloveyou.tattoo" target="_blank" class="nav-social" aria-label="Instagram">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+      </a>
+      <a href="http://facebook.com/143tattoo" target="_blank" class="nav-social" aria-label="Facebook">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+      </a>
+      <a href="booking.html" class="nav-book">Consult</a>
+    </div>
+  </nav>
+
+  <div class="page-hero">
+    <div class="page-hero-eyebrow">We'd love to work with you</div>
+    <h1 class="page-hero-title">Request a <em>Consult</em></h1>
+    <p class="page-hero-sub">Tell us what you have in mind and we'll take it from there. No idea is too rough - half the fun is working it out together.</p>
+  </div>
+
+  <div class="consult-layout">
+    <div class="consult-copy">
+      <h2>Start with a <em>conversation,</em><br>not a commitment.</h2>
+      <p>Fill in the form and it comes straight to us. We'll read it properly, match you with the right artist, and come back to you with ideas, timing and a price.</p>
+
+      <ol class="consult-steps">
+        <li><strong>You send the request</strong>Takes about two minutes. Reference images help, but a sentence is plenty to start.</li>
+        <li><strong>We match you with an artist</strong>Based on the style you're after - or name who you want and we'll go straight to them.</li>
+        <li><strong>We talk it through</strong>Placement, size, timing and price, before anything is locked in.</li>
+        <li><strong>You pick a date</strong>A deposit holds your slot and comes off the final price.</li>
+      </ol>
+
+      <dl class="consult-facts">
+        <div class="consult-fact"><dt>Artists</dt><dd>Jenni, Cory, Skylar, Millie, Gia, Remy, Eathan, Zoie</dd></div>
+        <div class="consult-fact"><dt>Hours</dt><dd>Tue - Sat, 12pm - 7pm</dd></div>
+        <div class="consult-fact"><dt>Deposit</dt><dd>Required to hold your appointment</dd></div>
+        <div class="consult-fact"><dt>Walk-ins</dt><dd>Welcome when an artist is free - Saturdays are best</dd></div>
+      </dl>
+    </div>
+
+    <div class="consult-form">
+      <div class="consult-form-frame">
+        <div class="consult-form-label">Tattoo Appointment Request</div>
+        <iframe
+          id="JotFormIFrame-251847711631154"
+          title="Tattoo Appointment Request"
+          allow="geolocation; microphone; camera"
+          src="https://www.jotform.com/app/251847711631154?appEmbedded=1"
+          loading="lazy"></iframe>
+      </div>
+      <p class="consult-form-fallback">
+        Form not loading?
+        <a href="https://www.jotform.com/app/251847711631154" target="_blank" rel="noopener">Open it in a new tab →</a>
+      </p>
+    </div>
+  </div>
+
+  <div class="page-content" style="padding-top:48px;">
+    <div class="alt-grid">
+      <a href="https://iloveyou.tattoo/piercingbooking" target="_blank" id="piercing" class="alt-option">
+        <div class="alt-badge">Piercing</div>
+        <div class="alt-title">Piercing <em>Consult</em></div>
+        <p class="alt-desc">Zoie is our resident piercer, with expertise across a wide range of placements and jewellery styles. Lobes to dermals - she does it all.</p>
+        <span class="btn-outline">Request a Piercing Consult →</span>
+      </a>
+      <a href="https://instagram.com/iloveyou.tattoo" target="_blank" class="alt-option">
+        <div class="alt-badge">Follow along</div>
+        <div class="alt-title">See it <em>first</em></div>
+        <p class="alt-desc">Flash drops, guest artist announcements and last-minute openings go up on Instagram before anywhere else. Tag us in your healed work - we love seeing it.</p>
+        <span class="btn-outline">@iloveyou.tattoo →</span>
+      </a>
+    </div>
+    <div class="info-note">
+      <p><strong>Not sure who to ask for?</strong> Leave the artist blank on the form, or message us at <a href="mailto:iloveyoutattoo143@gmail.com" style="color:var(--gold-lt)">iloveyoutattoo143@gmail.com</a> or on <a href="https://instagram.com/iloveyou.tattoo" style="color:var(--gold-lt)">Instagram</a> - we'll point you in the right direction.</p>
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-col">
+        <div class="footer-logo">I Love You Tattoo</div>
+        <div class="footer-est">Est. 2021 · Maryville, TN</div>
+        <p class="footer-tagline">143 Cherokee Heights Drive · Maryville, TN 37801</p>
+      </div>
+      <div class="footer-col">
+        <div class="footer-heading">Navigate</div>
+        <div class="footer-links">
+          <a href="../index.html">Home</a>
+          <a href="../index.html#work">Galleries</a>
+          <a href="team.html">The Team</a>
+          <a href="aftercare.html">Aftercare</a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <div class="footer-heading">Contact</div>
+        <div class="footer-links">
+          <a href="tel:8657241322">(865) 724-1322</a>
+          <a href="mailto:iloveyoutattoo143@gmail.com">Email us</a>
+          <a href="https://instagram.com/iloveyou.tattoo">Instagram</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2025 I Love You Tattoo · Maryville, TN</span>
+      <span>(865) 724-1322</span>
+    </div>
+  </footer>
+  <div class="bottom-bar">
+    <span>© 2025 I Love You Tattoo · Est. 2021 · Maryville, TN · 143 Cherokee Heights Drive</span>
+    <span>(865) 724-1322 · iloveyoutattoo143@gmail.com</span>
+  </div>
+  <script src="../js/main.js"></script>
+</body>
+</html>

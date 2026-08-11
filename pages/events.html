@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Where to find I Love You Tattoo - tattoo conventions, guest spots and shop events.">
+  <title>Events | I Love You Tattoo</title>
+  <link rel="stylesheet" href="../css/main.css">
+  <script src="../js/theme.js"></script>
+  <script src="../js/admin.js" defer></script>
+  <style>
+    /* ── compact intro ── */
+    .ev-intro {
+      padding: 54px 80px 40px;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: flex-end; justify-content: space-between;
+      gap: 40px; flex-wrap: wrap;
+    }
+    .ev-intro h1 {
+      font-family: var(--font-display);
+      font-size: clamp(44px, 5.4vw, 76px);
+      font-weight: 700; line-height: 0.95;
+      color: var(--cream); letter-spacing: -0.02em;
+      margin: 10px 0 0;
+    }
+    .ev-intro h1 em { font-style: italic; color: var(--gold-lt); }
+    .ev-intro-sub {
+      font-family: var(--font-accent);
+      font-size: 18px; line-height: 1.7; color: var(--muted);
+      max-width: 44ch; margin: 0;
+    }
+
+    /* ── section shell ──
+       Lifted off the page background so the listings read as their own
+       surface rather than dissolving into the dark. */
+    .ev-section {
+      background: var(--bg2);
+      border-bottom: 1px solid var(--border);
+    }
+    .ev-head {
+      padding: 46px 80px 0;
+      display: flex; align-items: baseline; justify-content: space-between;
+      gap: 20px; flex-wrap: wrap; margin-bottom: 26px;
+    }
+    .ev-count { font-size: 12px; color: var(--muted); letter-spacing: 0.06em; }
+
+    /* ── event card ──
+       Each event is its own raised panel on the section surface, so the
+       list has real separation instead of relying on hairline rules. */
+    .ev-list {
+      padding: 0 80px 52px;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .ev-card {
+      display: grid;
+      grid-template-columns: 132px 1fr auto;
+      gap: 32px; align-items: center;
+      padding: 22px 30px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-left: 2px solid var(--gold-dim);
+      transition: background 0.25s, border-color 0.25s, transform 0.25s;
+    }
+    .ev-card:hover {
+      background: color-mix(in srgb, var(--gold) 7%, var(--bg3));
+      border-color: var(--border2);
+      border-left-color: var(--gold);
+      transform: translateX(3px);
+    }
+    /* anything running right now gets the green edge */
+    .ev-card.ev-live { border-left-color: var(--accent2); }
+
+    /* date block */
+    .ev-date { text-align: center; }
+    .ev-month {
+      font-size: 11px; font-weight: 500; letter-spacing: 0.22em;
+      text-transform: uppercase; color: var(--gold);
+    }
+    .ev-day {
+      font-family: var(--font-display);
+      font-size: 38px; font-weight: 700; line-height: 1.05;
+      color: var(--cream); letter-spacing: -0.02em;
+    }
+    .ev-year { font-size: 11px; color: var(--faint); letter-spacing: 0.14em; }
+
+    /* body */
+    .ev-name {
+      font-family: var(--font-display);
+      font-size: 27px; font-weight: 400; color: var(--cream);
+      margin: 0 0 6px; line-height: 1.2;
+    }
+    .ev-card a.ev-name-link { color: inherit; transition: color 0.2s; }
+    .ev-card:hover a.ev-name-link { color: var(--gold-lt); }
+    .ev-name-link::after {
+      content: '↗'; font-size: 13px; margin-left: 8px;
+      color: var(--gold-dim); vertical-align: 3px;
+    }
+    .ev-where {
+      font-size: 12.5px; letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 14px;
+    }
+    .ev-note {
+      display: inline-block; margin-left: 10px;
+      font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--gold-lt);
+      border: 1px solid var(--border2); border-radius: 2px;
+      padding: 3px 8px; vertical-align: 1px;
+    }
+
+    /* artist chips */
+    .ev-artists { display: flex; flex-wrap: wrap; gap: 6px; }
+    .ev-chip {
+      font-size: 11.5px; letter-spacing: 0.06em;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      padding: 5px 12px;
+      transition: color 0.2s, border-color 0.2s, background 0.2s;
+    }
+    .ev-chip:hover { color: var(--cream); border-color: var(--gold); background: var(--accent-wash); }
+
+    /* right column */
+    .ev-when {
+      text-align: right; white-space: nowrap;
+      font-size: 12px; letter-spacing: 0.08em;
+      color: var(--muted);
+    }
+    .ev-when strong {
+      display: block; color: var(--gold-lt);
+      font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase;
+      font-weight: 500; margin-bottom: 3px;
+    }
+    .ev-live strong { color: var(--accent2); }
+
+    /* empty state */
+    .ev-empty {
+      margin: 0 80px 52px;
+      border: 1px solid var(--border);
+      border-left: 2px solid var(--gold-dim);
+      background: var(--bg3);
+      padding: 44px 48px;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 32px; flex-wrap: wrap;
+    }
+    .ev-empty h3 {
+      font-family: var(--font-display);
+      font-size: 26px; font-weight: 400; color: var(--cream);
+      margin: 0 0 8px;
+    }
+    .ev-empty p {
+      font-family: var(--font-accent);
+      font-size: 16.5px; line-height: 1.7; color: var(--muted);
+      margin: 0; max-width: 52ch;
+    }
+    .ev-empty-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+    /* ── archive ──
+       Flips the contrast: darker surface, lighter cards. It reads as a
+       quieter zone without dimming the text into unreadability. */
+    .ev-archive { background: var(--bg); }
+    .ev-archive .ev-card {
+      padding: 15px 26px;
+      background: var(--bg2);
+      border-left-color: var(--border2);
+      opacity: 0.85;
+    }
+    .ev-archive .ev-card:hover {
+      opacity: 1;
+      background: var(--bg3);
+      border-left-color: var(--gold-dim);
+    }
+    .ev-archive .ev-day { font-size: 26px; }
+    .ev-archive .ev-name { font-size: 20px; }
+    .ev-archive .ev-month { font-size: 10px; }
+
+    .ev-toggle {
+      font-family: var(--font-body);
+      font-size: 11.5px; letter-spacing: 0.12em; text-transform: uppercase;
+      background: transparent; color: var(--muted);
+      border: 1px solid var(--border); padding: 9px 20px; cursor: pointer;
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .ev-toggle:hover { color: var(--cream); border-color: var(--gold); }
+
+    /* follow band */
+    .ev-follow {
+      padding: 56px 80px;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 32px; flex-wrap: wrap;
+      background: var(--bg3);
+      border-top: 1px solid var(--border);
+    }
+    .ev-follow h3 {
+      font-family: var(--font-display);
+      font-size: clamp(26px, 3vw, 38px); font-weight: 400;
+      color: var(--cream); margin: 0 0 8px; line-height: 1.2;
+    }
+    .ev-follow h3 em { font-style: italic; color: var(--gold-lt); }
+    .ev-follow p {
+      font-family: var(--font-accent); font-size: 17px;
+      color: var(--muted); margin: 0; max-width: 50ch; line-height: 1.7;
+    }
+    .ev-follow-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+
+    @media (max-width: 1000px) {
+      .ev-intro, .ev-head { padding-left: 28px; padding-right: 28px; }
+      .ev-list { padding-left: 28px; padding-right: 28px; }
+      .ev-empty { margin-left: 28px; margin-right: 28px; padding: 32px 26px; }
+      .ev-follow { padding: 44px 28px; }
+    }
+    @media (max-width: 720px) {
+      .ev-card {
+        grid-template-columns: 74px 1fr;
+        gap: 18px; align-items: start;
+        padding: 18px 20px;
+      }
+      .ev-archive .ev-card { padding: 14px 20px; }
+      .ev-card:hover { transform: none; }
+      .ev-when { grid-column: 2; text-align: left; margin-top: 4px; }
+      .ev-day { font-size: 30px; }
+      .ev-name { font-size: 21px; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav id="main-nav">
+    <div class="nav-logo"><a href="../index.html"><img src="../images/logo.png" alt="I Love You Tattoo"></a></div>
+    <button class="nav-hamburger" id="nav-hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+    <div class="nav-links" id="nav-links">
+      <a href="../index.html">Home</a>
+      <div class="nav-dropdown">
+        <a href="team.html" class="nav-dropdown-trigger">The Team ▾</a>
+        <div class="nav-dropdown-menu">
+          <div class="nav-dropdown-menu-inner">
+            <a href="team.html#jenni">Jenni</a>
+            <a href="team.html#cory">Cory</a>
+            <a href="team.html#skylar">Skylar</a>
+            <a href="team.html#millie">Millie</a>
+            <a href="team.html#gia">Gia</a>
+            <a href="team.html#remy">Remy</a>
+            <a href="team.html#eathan">Eathan</a>
+            <a href="team.html#zoie">Zoie</a>
+          </div>
+        </div>
+      </div>
+      <a href="about.html">The Shop</a>
+      <a href="guests.html">Guest Artists</a>
+      <a href="events.html" class="active">Events</a>
+      <a href="aftercare.html">Aftercare</a>
+      <a href="store.html">Store</a>
+    </div>
+    <div class="nav-right">
+      <a href="https://instagram.com/iloveyou.tattoo" target="_blank" class="nav-social" aria-label="Instagram">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+      </a>
+      <a href="http://facebook.com/143tattoo" target="_blank" class="nav-social" aria-label="Facebook">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+      </a>
+      <a href="booking.html" class="nav-book">Consult</a>
+    </div>
+  </nav>
+
+  <div class="ev-intro">
+    <div>
+      <div class="section-eyebrow">Where to find us</div>
+      <h1>On the <em>road</em></h1>
+    </div>
+    <p class="ev-intro-sub">Conventions, guest spots and the odd shop night. If we're travelling near you, come say hi - we love meeting people who found us online.</p>
+  </div>
+
+  <section class="ev-section">
+    <div class="ev-head">
+      <h2 class="section-title">Coming up</h2>
+      <span class="ev-count" id="up-count"></span>
+    </div>
+    <div class="ev-list" id="up-list"></div>
+    <div class="ev-empty" id="up-empty" hidden>
+      <div>
+        <h3>Nothing on the calendar just yet.</h3>
+        <p>Our next conventions and guest spots haven't been announced. New dates go up on Instagram first - or drop us a line and we'll let you know when we're near you.</p>
+      </div>
+      <div class="ev-empty-actions">
+        <a class="btn-gold" href="https://instagram.com/iloveyou.tattoo" target="_blank" rel="noopener">Follow for dates →</a>
+        <a class="btn-outline" href="booking.html">Request a Consult</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="ev-section" id="guest-section" hidden>
+    <div class="ev-head">
+      <h2 class="section-title">Guest spots</h2>
+      <span class="ev-count" id="guest-count"></span>
+    </div>
+    <div class="ev-list" id="guest-list"></div>
+  </section>
+
+  <section class="ev-section ev-archive" id="past-section" hidden>
+    <div class="ev-head">
+      <div>
+        <div class="section-eyebrow">Archive</div>
+        <h2 class="section-title">Where we've been</h2>
+      </div>
+      <button class="ev-toggle" id="past-toggle" type="button" aria-expanded="false" aria-controls="past-list"></button>
+    </div>
+    <div class="ev-list" id="past-list" hidden></div>
+  </section>
+
+  <div class="ev-follow">
+    <div>
+      <h3>Dates drop on <em>Instagram</em> first.</h3>
+      <p>Conventions, guest spots, flash days and last-minute openings all get announced there before anywhere else.</p>
+    </div>
+    <div class="ev-follow-actions">
+      <a class="btn-gold" href="https://instagram.com/iloveyou.tattoo" target="_blank" rel="noopener">@iloveyou.tattoo →</a>
+      <a class="btn-outline" href="booking.html">Request a Consult</a>
+    </div>
+  </div>
+
+  <div class="bottom-bar">
+    <span>© 2025 I Love You Tattoo · Est. 2021 · Maryville, TN · 143 Cherokee Heights Drive</span>
+    <span>(865) 724-1322 · <a href="mailto:iloveyoutattoo143@gmail.com">iloveyoutattoo143@gmail.com</a></span>
+  </div>
+
+  <script src="../js/main.js"></script>
+  <script>
+  (function () {
+    'use strict';
+
+    /* ─────────────────────────────────────────
+       EVENTS
+       Add an entry and it files itself: anything whose end date has
+       passed drops into the archive automatically, so the page can't
+       go stale the way a hand-written list does.
+
+       dates are ISO (YYYY-MM-DD) and inclusive of `end`.
+       artists are team.html slugs, so the chips deep-link to them.
+       kind: 'convention' | 'guest'
+       ───────────────────────────────────────── */
+    var EVENTS = [
+      {
+        kind: 'convention', name: 'Anime Ink',
+        start: '2025-04-18', end: '2025-04-20',
+        city: 'Savannah, GA', url: 'https://animeinkconsav.com',
+        artists: ['cory', 'eathan']
+      },
+      {
+        kind: 'convention', name: 'Riverside Invitational',
+        start: '2025-05-10', end: '2025-05-11',
+        city: 'Knoxville, TN', url: 'https://riversidetattoo.club/convention-1',
+        artists: ['jenni', 'millie', 'gia', 'skylar']
+      },
+      {
+        kind: 'convention', name: 'Knoxville Tattoo Convention',
+        start: '2025-08-15', end: '2025-08-17',
+        city: 'Knoxville, TN', url: 'https://knoxvilletattooconvention.com',
+        artists: ['cory', 'jenni', 'millie', 'skylar', 'gia', 'remy']
+      },
+      {
+        kind: 'convention', name: 'C3',
+        start: '2025-08-29', end: '2025-08-31',
+        city: 'Sevierville, TN', url: 'https://c3-con.com',
+        artists: ['cory', 'jenni', 'millie', 'skylar', 'gia', 'remy', 'zoie']
+      },
+      {
+        kind: 'convention', name: 'Norfolk Tattoo Convention',
+        start: '2025-11-06', end: '2025-11-09',
+        city: 'Norfolk, VA', url: 'https://norfolktattooexpo.com',
+        artists: ['jenni', 'gia'],
+        note: 'Attending - not tattooing'
+      },
+      {
+        kind: 'guest', name: 'Pike Street Tattoo',
+        start: '2024-07-16', end: '2024-07-20',
+        city: 'Cynthiana, KY', url: 'https://pikestreettattoo.com',
+        artists: ['jenni']
+      }
+    ];
+
+    var NAMES = {
+      jenni: 'Jenni', cory: 'Cory', skylar: 'Skylar', millie: 'Millie',
+      gia: 'Gia', remy: 'Remy', eathan: 'Eathan', zoie: 'Zoie'
+    };
+    var MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+    var byId = function (id) { return document.getElementById(id); };
+
+    /* Parse as a LOCAL date - new Date('2025-04-18') is UTC midnight and
+       can land on the previous day west of Greenwich. */
+    function parse(iso) {
+      var p = iso.split('-');
+      return new Date(+p[0], +p[1] - 1, +p[2]);
+    }
+
+    var today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    function dayDiff(a, b) {
+      return Math.round((a - b) / 86400000);
+    }
+
+    function esc(s) {
+      return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    /* "18-20" for a range inside one month, "29 Aug-2 Sep" across months */
+    function dayLabel(s, e) {
+      if (s.getMonth() === e.getMonth() && s.getFullYear() === e.getFullYear()) {
+        return s.getDate() === e.getDate()
+          ? String(s.getDate())
+          : s.getDate() + '-' + e.getDate();
+      }
+      return s.getDate() + ' ' + MONTHS[s.getMonth()] + '-' + e.getDate() + ' ' + MONTHS[e.getMonth()];
+    }
+
+    function monthLabel(s, e) {
+      return s.getMonth() === e.getMonth()
+        ? MONTHS[s.getMonth()]
+        : MONTHS[s.getMonth()] + ' / ' + MONTHS[e.getMonth()];
+    }
+
+    /* Relative timing, only meaningful for things that haven't finished */
+    function whenLabel(s, e) {
+      if (s <= today && today <= e) return { cls: 'ev-live', top: 'Happening now', sub: 'Come find us' };
+      var d = dayDiff(s, today);
+      if (d === 0) return { cls: 'ev-live', top: 'Today', sub: '' };
+      if (d === 1) return { cls: '', top: 'Tomorrow', sub: '' };
+      if (d < 31) return { cls: '', top: 'In ' + d + ' days', sub: '' };
+      var m = Math.round(d / 30.44);
+      return { cls: '', top: 'In ' + m + ' month' + (m === 1 ? '' : 's'), sub: '' };
+    }
+
+    function card(ev, isPast) {
+      var s = parse(ev.start), e = parse(ev.end);
+      var el = document.createElement('article');
+      el.className = 'ev-card';
+
+      var chips = ev.artists.map(function (slug) {
+        var nm = NAMES[slug] || slug;
+        return '<a class="ev-chip" href="team.html#' + slug + '">' + esc(nm) + '</a>';
+      }).join('');
+
+      var right = '';
+      if (!isPast) {
+        var w = whenLabel(s, e);
+        // guard: classList.add('') throws, and cls is empty for anything
+        // that isn't currently running
+        if (w.cls) el.classList.add(w.cls);
+        right = '<div class="ev-when ' + w.cls + '"><strong>' + esc(w.top) + '</strong>' + esc(w.sub) + '</div>';
+      } else {
+        right = '<div class="ev-when">' + s.getFullYear() + '</div>';
+      }
+
+      el.innerHTML =
+        '<div class="ev-date">' +
+          '<div class="ev-month">' + monthLabel(s, e) + '</div>' +
+          '<div class="ev-day">' + dayLabel(s, e) + '</div>' +
+          '<div class="ev-year">' + s.getFullYear() + '</div>' +
+        '</div>' +
+        '<div class="ev-body">' +
+          '<h3 class="ev-name">' +
+            '<a class="ev-name-link" href="' + esc(ev.url) + '" target="_blank" rel="noopener">' +
+              esc(ev.name) + '</a>' +
+            (ev.note ? '<span class="ev-note">' + esc(ev.note) + '</span>' : '') +
+          '</h3>' +
+          '<div class="ev-where">' + esc(ev.city) + '</div>' +
+          '<div class="ev-artists">' + chips + '</div>' +
+        '</div>' +
+        right;
+      return el;
+    }
+
+    // Split by whether the event has finished
+    var upcoming = [], past = [], guests = [];
+    EVENTS.forEach(function (ev) {
+      var e = parse(ev.end);
+      if (e >= today) {
+        (ev.kind === 'guest' ? guests : upcoming).push(ev);
+      } else {
+        past.push(ev);
+      }
+    });
+
+    upcoming.sort(function (a, b) { return parse(a.start) - parse(b.start); });
+    guests.sort(function (a, b) { return parse(a.start) - parse(b.start); });
+    past.sort(function (a, b) { return parse(b.start) - parse(a.start); });   // newest first
+
+    // Upcoming
+    var upList = byId('up-list');
+    if (upcoming.length) {
+      upcoming.forEach(function (ev) { upList.appendChild(card(ev, false)); });
+      byId('up-count').textContent = upcoming.length + ' date' + (upcoming.length === 1 ? '' : 's');
+    } else {
+      upList.hidden = true;
+      byId('up-empty').hidden = false;
+    }
+
+    // Guest spots (only if some are still ahead of us)
+    if (guests.length) {
+      byId('guest-section').hidden = false;
+      guests.forEach(function (ev) { byId('guest-list').appendChild(card(ev, false)); });
+      byId('guest-count').textContent = guests.length + ' visit' + (guests.length === 1 ? '' : 's');
+    }
+
+    // Archive
+    if (past.length) {
+      var sec = byId('past-section'), list = byId('past-list'), btn = byId('past-toggle');
+      sec.hidden = false;
+      past.forEach(function (ev) { list.appendChild(card(ev, true)); });
+
+      var label = function (open) {
+        btn.textContent = (open ? 'Hide' : 'Show') + ' ' + past.length + ' past event' + (past.length === 1 ? '' : 's');
+        btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      };
+      // If there's nothing upcoming, the archive is all we have - open it.
+      var open = upcoming.length === 0 && guests.length === 0;
+      list.hidden = !open;
+      label(open);
+
+      btn.addEventListener('click', function () {
+        open = !open;
+        list.hidden = !open;
+        label(open);
+      });
+    }
+  })();
+  </script>
+</body>
+</html>
