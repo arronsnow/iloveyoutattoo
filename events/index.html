@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Where to find I Love You Tattoo - tattoo conventions, guest spots and shop events.">
   <title>Events | I Love You Tattoo</title>
-  <link rel="stylesheet" href="../css/main.css">
-  <script src="../js/theme.js"></script>
-  <script src="../js/admin.js" defer></script>
+  <link rel="stylesheet" href="/css/main.css">
+  <script src="/js/theme.js"></script>
+  <script src="/js/admin.js" defer></script>
   <style>
     /* ── compact intro ── */
     .ev-intro {
@@ -224,30 +224,30 @@
 <body>
 
   <nav id="main-nav">
-    <div class="nav-logo"><a href="../index.html"><img src="../images/logo.png" alt="I Love You Tattoo"></a></div>
+    <div class="nav-logo"><a href="/"><img src="/images/logo.png" alt="I Love You Tattoo"></a></div>
     <button class="nav-hamburger" id="nav-hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
     <div class="nav-links" id="nav-links">
-      <a href="../index.html">Home</a>
+      <a href="/">Home</a>
       <div class="nav-dropdown">
-        <a href="team.html" class="nav-dropdown-trigger">The Team ▾</a>
+        <a href="/team/" class="nav-dropdown-trigger">The Team ▾</a>
         <div class="nav-dropdown-menu">
           <div class="nav-dropdown-menu-inner">
-            <a href="team.html#jenni">Jenni</a>
-            <a href="team.html#cory">Cory</a>
-            <a href="team.html#skylar">Skylar</a>
-            <a href="team.html#millie">Millie</a>
-            <a href="team.html#gia">Gia</a>
-            <a href="team.html#remy">Remy</a>
-            <a href="team.html#eathan">Eathan</a>
-            <a href="team.html#zoie">Zoie</a>
+            <a href="/team/#jenni">Jenni</a>
+            <a href="/team/#cory">Cory</a>
+            <a href="/team/#skylar">Skylar</a>
+            <a href="/team/#millie">Millie</a>
+            <a href="/team/#gia">Gia</a>
+            <a href="/team/#remy">Remy</a>
+            <a href="/team/#eathan">Eathan</a>
+            <a href="/team/#zoie">Zoie</a>
           </div>
         </div>
       </div>
-      <a href="about.html">The Shop</a>
-      <a href="guests.html">Guest Artists</a>
-      <a href="events.html" class="active">Events</a>
-      <a href="aftercare.html">Aftercare</a>
-      <a href="store.html">Store</a>
+      <a href="/about/">The Shop</a>
+      <a href="/guests/">Guest Artists</a>
+      <a href="/events/" class="active">Events</a>
+      <a href="/aftercare/">Aftercare</a>
+      <a href="/store/">Store</a>
     </div>
     <div class="nav-right">
       <a href="https://instagram.com/iloveyou.tattoo" target="_blank" class="nav-social" aria-label="Instagram">
@@ -256,7 +256,7 @@
       <a href="http://facebook.com/143tattoo" target="_blank" class="nav-social" aria-label="Facebook">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
       </a>
-      <a href="booking.html" class="nav-book">Consult</a>
+      <a href="/booking/" class="nav-book">Consult</a>
     </div>
   </nav>
 
@@ -281,7 +281,7 @@
       </div>
       <div class="ev-empty-actions">
         <a class="btn-gold" href="https://instagram.com/iloveyou.tattoo" target="_blank" rel="noopener">Follow for dates →</a>
-        <a class="btn-outline" href="booking.html">Request a Consult</a>
+        <a class="btn-outline" href="/booking/">Request a Consult</a>
       </div>
     </div>
   </section>
@@ -312,7 +312,7 @@
     </div>
     <div class="ev-follow-actions">
       <a class="btn-gold" href="https://instagram.com/iloveyou.tattoo" target="_blank" rel="noopener">@iloveyou.tattoo →</a>
-      <a class="btn-outline" href="booking.html">Request a Consult</a>
+      <a class="btn-outline" href="/booking/">Request a Consult</a>
     </div>
   </div>
 
@@ -321,7 +321,7 @@
     <span>(865) 724-1322 · <a href="mailto:iloveyoutattoo143@gmail.com">iloveyoutattoo143@gmail.com</a></span>
   </div>
 
-  <script src="../js/main.js"></script>
+  <script src="/js/main.js"></script>
   <script>
   (function () {
     'use strict';
@@ -436,7 +436,7 @@
 
       var chips = ev.artists.map(function (slug) {
         var nm = NAMES[slug] || slug;
-        return '<a class="ev-chip" href="team.html#' + slug + '">' + esc(nm) + '</a>';
+        return '<a class="ev-chip" href="/team/#' + slug + '">' + esc(nm) + '</a>';
       }).join('');
 
       var right = '';
