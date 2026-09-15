@@ -1,0 +1,23 @@
+{
+  "_comment": "Theme overrides written by the admin theme editor. js/theme.js applies these for EVERY visitor. Any token omitted falls back to the default in css/main.css.",
+
+  "fonts": {
+    "display": "'Playfair Display', serif",
+    "body":    "'DM Sans', sans-serif",
+    "accent":  "'Crimson Text', serif"
+  },
+
+  "colors": {
+    "bg":         "#1a1208",
+    "bg-deep":    "#100b02",
+    "shade":      "#120a02",
+    "scrim":      "#160e04",
+    "accent":     "#b8892a",
+    "accent-lt":  "#d4a94a",
+    "accent-dim": "#7a5c1a",
+    "cream":      "#f2e8d0",
+    "text":       "#e8dcc8",
+    "muted":      "#9a8a6a",
+    "faint":      "#5a4e3a"
+  }
+}

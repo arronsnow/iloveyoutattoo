@@ -10,10 +10,12 @@
    2. postMessage - live updates from the editor
       while its preview iframe is open.
 
-   NOTE: localStorage is per-browser. Visitors do NOT
-   see themes saved here. To ship a theme to everyone,
-   export the CSS from the editor and paste it into
-   the :root block of css/main.css.
+   3. data/theme.json - the PUBLISHED theme, committed to
+      the repo by the admin. Every visitor sees this.
+
+   Precedence: published theme loads for everyone, then any
+   locally-saved staff preview is layered on top so editors
+   can try changes without shipping them.
    ───────────────────────────────────────── */
 (function () {
   'use strict';
@@ -83,9 +85,26 @@
     }
   }
 
-  // Apply any saved theme as early as possible to avoid a flash of
+  /* theme.json is nested for readability; the applier wants a flat
+     map of CSS custom-property names to values. */
+  function flatten(doc) {
+    if (!doc) return null;
+    var out = {};
+    Object.keys(doc.fonts || {}).forEach(function (k) { out['font-' + k] = doc.fonts[k]; });
+    Object.keys(doc.colors || {}).forEach(function (k) { out[k] = doc.colors[k]; });
+    return out;
+  }
+
+  // Apply any saved staff preview immediately to avoid a flash of
   // the default palette.
   apply(read());
+
+  // Then the published theme, which every visitor gets. A staff
+  // preview is re-applied afterwards so it still wins locally.
+  fetch('/data/theme.json', { cache: 'no-cache' })
+    .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+    .then(function (doc) { apply(flatten(doc)); apply(read()); })
+    .catch(function () { /* fall back to the defaults in css/main.css */ });
 
   // Live preview: the editor posts the working theme on every change.
   window.addEventListener('message', function (e) {

@@ -1,0 +1,63 @@
+{
+  "_comment": "Single source of truth for shop details. Edited in the admin; rendered by js/site.js into any element carrying a data-site attribute.",
+  "name": "I Love You Tattoo",
+  "established": "2021",
+  "tagline": "it's great to do what you love, and even better to do it with who you love",
+  "address": {
+    "street": "143 Cherokee Heights Drive",
+    "city": "Maryville",
+    "state": "TN",
+    "zip": "37801"
+  },
+  "phone": "(865) 724-1322",
+  "email": "iloveyoutattoo143@gmail.com",
+  "social": {
+    "instagram": "https://instagram.com/iloveyou.tattoo",
+    "facebook": "http://facebook.com/143tattoo",
+    "googleReview": "https://g.page/r/CYzF0tUok-OBEB0/review"
+  },
+  "hours": [
+    {
+      "day": "Monday",
+      "open": null,
+      "close": null,
+      "closed": true
+    },
+    {
+      "day": "Tuesday",
+      "open": "12pm",
+      "close": "7pm",
+      "closed": false
+    },
+    {
+      "day": "Wednesday",
+      "open": "12pm",
+      "close": "7pm",
+      "closed": false
+    },
+    {
+      "day": "Thursday",
+      "open": "12pm",
+      "close": "7pm",
+      "closed": false
+    },
+    {
+      "day": "Friday",
+      "open": "12pm",
+      "close": "7pm",
+      "closed": false
+    },
+    {
+      "day": "Saturday",
+      "open": "12pm",
+      "close": "7pm",
+      "closed": false
+    },
+    {
+      "day": "Sunday",
+      "open": null,
+      "close": null,
+      "closed": true
+    }
+  ]
+}

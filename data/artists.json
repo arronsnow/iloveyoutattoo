@@ -1,0 +1,142 @@
+[
+  {
+    "slug": "jenni",
+    "name": "Jenni",
+    "photo": "jenni.jpg",
+    "ig": "jennitattoo",
+    "role": "Founder · Resident Artist",
+    "style": "American Traditional · Fine Line · Watercolor Flash",
+    "folder": "jenni",
+    "prefix": "jenni",
+    "bio": [
+      "Jenni, an experienced tattoo artist with more than ten years in the field, started the shop in 2021.",
+      "She enjoys various tattoo styles, especially American traditional.",
+      "While she mostly works by appointment, she accepts walk-ins when possible, reserving Saturdays for them and flash tattoos.",
+      "Jenni also has a keen interest in tattoo history, reflected in her collection of tattoo books, memorabilia and vintage flash.",
+      "She enjoys creating and painting watercolor flash as a form of artistic expression."
+    ]
+  },
+  {
+    "slug": "cory",
+    "name": "Cory",
+    "photo": "cory.jpg",
+    "ig": "coryhandtattoos",
+    "role": "Resident Artist",
+    "style": "Colorful Illustration · Versatile Styles",
+    "folder": "cory",
+    "prefix": "cory",
+    "bio": [
+      "Cory, a tattoo artist with 20 years of experience, joined I Love You Tattoo in April 2022.",
+      "He specializes in colorful illustrations and is versatile in different styles.",
+      "His main thing is creating cute, vibrant tattoos that last.",
+      "In his free time, he enjoys drawing with colored pencils, paint markers, and spray paint.",
+      "He has a lifelong passion for comics and cartoons and collects comics and action figures.",
+      "Cory's commitment to his craft is evident in every tattoo he does, making him a valuable team member."
+    ]
+  },
+  {
+    "slug": "skylar",
+    "name": "Skylar",
+    "photo": "skylar.jpg",
+    "ig": "neon.decay.tattoos",
+    "role": "Resident Artist",
+    "style": "Void / Blackwork · Nature · Sci-Fi",
+    "folder": "skylar",
+    "prefix": "skylar",
+    "bio": [
+      "Skylar joined us in September 2022 and has ten years of tattooing experience.",
+      "He has developed two distinct styles: void tattooing, which focuses on black work, and tattoos inspired by nature and sci-fi, featuring bright colors and decaying elements.",
+      "He mainly works by appointment but occasionally accepts walk-ins for his flash designs.",
+      "Outside of tattooing, Skylar enjoys building terrariums, making jewelry, and exploring various crafts.",
+      "Working with him is both a professional and personal pleasure due to his enthusiasm and friendly nature."
+    ]
+  },
+  {
+    "slug": "millie",
+    "name": "Millie",
+    "photo": "millie.jpg",
+    "ig": "girlwiththefoxtattoo",
+    "role": "Resident Artist",
+    "style": "Pointillism · Blackwork · Color · Portraits",
+    "folder": "millie",
+    "prefix": "millie",
+    "bio": [
+      "Millie, a talented tattoo artist with 9 years of experience, joined our team in August of 2023.",
+      "Specializing in pointillism black work, she also enjoys exploring color and portraits in her art. Her tattoos are known for their soft, beautiful aesthetic.",
+      "Working by appointment only, Millie opens her books for bookings every quarter.",
+      "Outside of her tattooing work, she finds joy in hiking, tending to her plant collection, and baking sourdough bread.",
+      "With her calming presence, great taste in music, and relaxed demeanor, spending time with Millie at the shop is always a pleasure."
+    ]
+  },
+  {
+    "slug": "gia",
+    "name": "Gia",
+    "photo": "gia.jpg",
+    "ig": "gia.tattoos",
+    "role": "Resident Artist",
+    "style": "Flowers · Animals · Various Styles",
+    "folder": "gia",
+    "prefix": "gia",
+    "bio": [
+      "Gia, our talented tattoo artist, has been sharing her artistry with us for four wonderful years, having become a part of our team in April of 2023.",
+      "Her passion for tattooing shines through especially when creating designs of flowers and animals.",
+      "Beyond her tattooing expertise, Gia finds joy in collecting quirky knick-knacks and fascinating flash pieces.",
+      "Aiming to evolve further as an artist, she embraces various styles with enthusiasm.",
+      "Known for her gentle and kind nature, Gia brings a sweet presence to the studio, making every session a delightful experience.",
+      "Whether scheduling appointments or welcoming walk-ins, Gia's dedication to her craft always shines through."
+    ]
+  },
+  {
+    "slug": "remy",
+    "name": "Remy",
+    "photo": "remy.jpg",
+    "ig": "_remytats_",
+    "role": "Resident Artist",
+    "style": "Bold Color · Anime · Traditional",
+    "folder": "remy",
+    "prefix": "remy",
+    "bio": [
+      "Remy is a skilled tattoo artist with three years of experience and a total of four years in the industry.",
+      "He joined our team in October 2024 and works by appointment only, giving each client his full attention.",
+      "He enjoys creating bold, colorful anime tattoos and traditional designs, showcasing his artistic talent.",
+      "In his free time, Remy likes playing video games, drawing, watching anime, and reading manga.",
+      "Remy is a friendly and fun person who takes his work seriously. You won't regret choosing him as your tattoo artist."
+    ]
+  },
+  {
+    "slug": "eathan",
+    "name": "Eathan",
+    "photo": "eathan.jpg",
+    "ig": "haleboy.tattoos",
+    "role": "Apprentice",
+    "style": "Apprentice · Growing Every Day",
+    "folder": "eathan",
+    "prefix": "eathan",
+    "bio": [
+      "Eathan is the enthusiastic and dedicated apprentice over at our tattoo studio, honing his skills every day.",
+      "Eathan enjoys a challenge himself with his drawing, as well as commissions he receives.",
+      "He always brings cheer to the shop, with his infectious laughter and sense of humor.",
+      "Recently, he began tattooing on skin under guidance, and he is excited to proceed with the career of his dreams.",
+      "If you would like to get tattooed by Eathan, please keep in mind that he is still in the learning phase and the tattoos he offers are considered apprentice level.",
+      "However, every opportunity he gets to improve, he wholeheartedly embraces, eager to grow and develop his craft."
+    ]
+  },
+  {
+    "slug": "zoie",
+    "name": "Zoie",
+    "photo": "zoie.jpg",
+    "ig": "kittystabz",
+    "pos": "64% 18%",
+    "role": "Apprentice · Resident Piercer",
+    "style": "Tiny Tattoos · Apprentice",
+    "folder": "zoie tattoo",
+    "prefix": "zoietattoo",
+    "bio": [
+      "Zoie, our newest apprentice, is new to the art of tattooing, but she brings with her over seven years of invaluable experience in the industry.",
+      "She officially joined our dedicated team in February 2024.",
+      "Zoie is diligently working her way toward becoming our shop's tiny tattoo specialist, with a focus on creating precise, beautiful designs.",
+      "Her commitment is evident as she works hard to learn and perfect her skills in tiny tattooing.",
+      "We invite you to book a session with her today and become a part of her exciting artistic journey."
+    ]
+  }
+]
