@@ -6,6 +6,55 @@
   <link rel="stylesheet" href="/css/main.css">
   <script src="/js/theme.js"></script>
   <script src="/js/admin.js" defer></script>
+  <style>
+    .guest-intro { padding: 0 0 8px; }
+    .guest-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+      gap: 2px; background: var(--border);
+    }
+    .guest-item {
+      position: relative; aspect-ratio: 1; overflow: hidden;
+      background: var(--bg-deep); cursor: pointer;
+    }
+    .guest-item img {
+      width: 100%; height: 100%; object-fit: cover; display: block;
+      transition: transform 0.4s ease;
+    }
+    .guest-item:hover img { transform: scale(1.06); }
+    .guest-cap {
+      position: absolute; left: 0; right: 0; bottom: 0;
+      padding: 22px 12px 10px;
+      background: linear-gradient(to top, rgba(16,11,2,0.92), transparent);
+      font-size: 12px; letter-spacing: 0.06em; color: var(--cream);
+    }
+    .guest-status {
+      padding: 60px; text-align: center; color: var(--muted);
+      font-family: var(--font-accent); font-style: italic; font-size: 17px;
+    }
+    .lightbox {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.92); z-index: 9999;
+      align-items: center; justify-content: center; flex-direction: column;
+    }
+    .lightbox.active { display: flex; }
+    .lightbox-img { max-width: 90vw; max-height: 82vh; object-fit: contain; }
+    .lb-cap { margin-top: 14px; font-size: 13px; letter-spacing: 0.08em; color: var(--gold-lt); }
+    .lb-close {
+      position: absolute; top: 24px; right: 32px;
+      font-size: 32px; color: var(--muted);
+      cursor: pointer; background: none; border: none;
+    }
+    .lb-close:hover { color: var(--cream); }
+    .lb-prev, .lb-next {
+      position: absolute; top: 50%; transform: translateY(-50%);
+      font-size: 36px; color: var(--muted);
+      cursor: pointer; background: none; border: none; padding: 20px;
+    }
+    .lb-prev { left: 8px; }
+    .lb-next { right: 8px; }
+    .lb-prev:hover, .lb-next:hover { color: var(--gold-lt); }
+  </style>
 </head>
 <body>
   <nav id="main-nav">
@@ -45,13 +94,33 @@
     </div>
   </nav>
   <div class="page-hero">
-    <h1 class="page-hero-title"><em>Guest Artists</em></h1>
-    <p class="page-hero-sub">Content coming soon. Check back or follow us on Instagram for updates.</p>
+    <div class="page-hero-eyebrow">Visiting Artists</div>
+    <h1 class="page-hero-title">Guest <em>Artists</em></h1>
+    <p class="page-hero-sub">
+      Artists who have travelled in to work alongside us. We host guests
+      whenever we get the chance &mdash; if you would like to guest with us,
+      get in touch.
+    </p>
   </div>
-  <div class="page-content" style="text-align:center; padding-top: 60px; padding-bottom: 60px;">
-    <a href="/" class="btn-outline" style="margin-right:16px;">← Back Home</a>
-    <a href="/booking/" class="btn-gold">Request a Consult →</a>
+
+  <div class="page-content">
+    <div class="guest-grid" id="guest-grid"></div>
+    <p class="guest-status" id="guest-status">Loading guest artists…</p>
   </div>
+
+  <div class="page-content" style="text-align:center; padding-top:8px; padding-bottom:60px;">
+    <a href="/" class="btn-outline" style="margin-right:16px;">&larr; Back Home</a>
+    <a href="/booking/" class="btn-gold">Request a Consult &rarr;</a>
+  </div>
+
+  <div class="lightbox" id="lightbox">
+    <button class="lb-close" id="lb-close">&#10005;</button>
+    <button class="lb-prev" id="lb-prev">&#8249;</button>
+    <img class="lightbox-img" id="lb-img" src="" alt="">
+    <div class="lb-cap" id="lb-cap"></div>
+    <button class="lb-next" id="lb-next">&#8250;</button>
+  </div>
+
   <footer>
     <div class="footer-inner">
       <div class="footer-col"><div class="footer-logo">I Love You Tattoo</div><div class="footer-est">Est. 2021 · Maryville, TN</div></div>
@@ -66,5 +135,67 @@
   </div>
   <script src="/js/site.js"></script>
   <script src="/js/main.js"></script>
+  <script>
+  (function () {
+    var grid   = document.getElementById('guest-grid');
+    var status = document.getElementById('guest-status');
+    var lb     = document.getElementById('lightbox');
+    var lbImg  = document.getElementById('lb-img');
+    var lbCap  = document.getElementById('lb-cap');
+    var photos = [];
+    var current = 0;
+
+    function show(i) {
+      current = (i + photos.length) % photos.length;
+      lbImg.src = photos[current].src;
+      lbCap.textContent = photos[current].caption || '';
+      lb.classList.add('active');
+    }
+    function close() { lb.classList.remove('active'); }
+
+    document.getElementById('lb-close').addEventListener('click', close);
+    document.getElementById('lb-prev').addEventListener('click', function () { show(current - 1); });
+    document.getElementById('lb-next').addEventListener('click', function () { show(current + 1); });
+    lb.addEventListener('click', function (e) { if (e.target === lb) close(); });
+    document.addEventListener('keydown', function (e) {
+      if (!lb.classList.contains('active')) return;
+      if (e.key === 'Escape') close();
+      if (e.key === 'ArrowLeft') show(current - 1);
+      if (e.key === 'ArrowRight') show(current + 1);
+    });
+
+    fetch('/data/galleries/guests.json', { cache: 'no-cache' })
+      .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+      .then(function (doc) {
+        photos = (doc.photos || []).map(function (ph) {
+          return typeof ph === 'string' ? { src: ph, caption: '' } : ph;
+        });
+        if (!photos.length) { status.textContent = 'No guest artists to show yet.'; return; }
+
+        photos.forEach(function (ph, i) {
+          var cell = document.createElement('div');
+          cell.className = 'guest-item';
+          var img = document.createElement('img');
+          img.src = ph.src;
+          img.loading = 'lazy';
+          img.alt = ph.caption || 'Guest artist';
+          cell.appendChild(img);
+          if (ph.caption) {
+            var cap = document.createElement('div');
+            cap.className = 'guest-cap';
+            cap.textContent = ph.caption;
+            cell.appendChild(cap);
+          }
+          cell.addEventListener('click', function () { show(i); });
+          grid.appendChild(cell);
+        });
+        status.style.display = 'none';
+      })
+      .catch(function (err) {
+        status.textContent = 'Could not load the guest artists.';
+        if (window.console) console.error('guests gallery:', err);
+      });
+  })();
+  </script>
 </body>
 </html>
