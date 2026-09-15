@@ -475,8 +475,6 @@
     var ARTISTS = [];   // loaded from data/artists.json
 
     var PER_PAGE  = 12;
-    var BATCH     = 10;
-    var MAX_INDEX = 80;
     var ARROW     = '→';
     var IG_SVG    = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>';
 
@@ -576,57 +574,38 @@
        gaps. Probe in batches and stop once a batch comes back empty, so
        adding a photo still "just works" without firing 80 requests per
        artist. Only the open artist is ever probed; results are cached. */
+    /* -- Gallery loading --
+       Photo lists live in data/galleries/<id>.json, maintained by the
+       admin. One file per gallery, so two artists uploading at the same
+       time never write to the same file. Results are cached per id. */
     function loadGallery(a) {
       images = []; page = 0;
       grid.innerHTML = '';
       pagEl.style.display = 'none';
       countEl.textContent = '';
 
-      if (cache[a.slug]) { images = cache[a.slug]; finish(a); return; }
+      var id = a.gallery || a.slug;
+      if (cache[id]) { images = cache[id]; finish(a); return; }
 
       statusEl.style.display = 'block';
       statusEl.textContent = 'Loading gallery…';
 
-      var found = [], start = 1, emptyStreak = 0;
-
-      function probeBatch() {
-        if (current !== a) return;
-        if (start > MAX_INDEX) return done();
-
-        var end = Math.min(start + BATCH - 1, MAX_INDEX);
-        var pending = end - start + 1;
-        var hits = 0;
-
-        for (var i = start; i <= end; i++) {
-          (function (idx) {
-            var src = '/images/tattoo galleries/' + a.folder + '/' +
-                      a.prefix + '_' + String(idx).padStart(3, '0') + '.jpg';
-            var probe = new Image();
-            probe.onload  = function () { found.push({ idx: idx, src: src }); hits++; if (--pending === 0) step(); };
-            probe.onerror = function () { if (--pending === 0) step(); };
-            probe.src = src;
-          })(i);
-        }
-
-        function step() {
-          if (hits === 0) {
-            emptyStreak++;
-            if (emptyStreak >= (found.length ? 1 : 2)) return done();
-          } else emptyStreak = 0;
-          start = end + 1;
-          probeBatch();
-        }
-      }
-
-      function done() {
-        if (current !== a) return;
-        found.sort(function (x, y) { return x.idx - y.idx; });
-        images = found.map(function (f) { return f.src; });
-        cache[a.slug] = images;
-        finish(a);
-      }
-
-      probeBatch();
+      fetch('/data/galleries/' + encodeURIComponent(id) + '.json', { cache: 'no-cache' })
+        .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+        .then(function (doc) {
+          if (current !== a) return;
+          images = (doc.photos || []).map(function (ph) {
+            return typeof ph === 'string' ? ph : ph.src;
+          });
+          cache[id] = images;
+          finish(a);
+        })
+        .catch(function (err) {
+          if (current !== a) return;
+          statusEl.style.display = 'block';
+          statusEl.textContent = 'Could not load this gallery.';
+          if (window.console) console.error('gallery ' + id + ':', err);
+        });
     }
 
     function finish(a) {

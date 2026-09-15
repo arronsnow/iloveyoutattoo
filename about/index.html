@@ -265,36 +265,42 @@
   <script src="/js/site.js"></script>
   <script src="/js/main.js"></script>
   <script>
-    /* Shop photos are numbered contiguously: about_001 … about_TOTAL.
-       Shuffle the whole set and show a slice, so the wall looks different
-       on every visit rather than always showing the same first 40.
-       If you add photos to images/the shop/, bump TOTAL. */
-    var TOTAL = 183;
-    var SHOW  = 40;
-
-    var pool = [];
-    for (var i = 1; i <= TOTAL; i++) {
-      pool.push('/images/the shop/about_' + String(i).padStart(3, '0') + '.jpg');
-    }
-    for (var i = pool.length - 1; i > 0; i--) {
-      var j = Math.floor(Math.random() * (i + 1));
-      var swap = pool[i]; pool[i] = pool[j]; pool[j] = swap;
-    }
-    var imgs = pool.slice(0, SHOW);
-
+    /* Shop photos come from data/galleries/shop.json, maintained by the
+       admin, so adding one is a data change rather than a code change.
+       The set is shuffled and sliced so the wall looks different on each
+       visit rather than always showing the same photos. */
+    var SHOW = 40;
+    var imgs = [];
     var grid = document.getElementById('shop-grid');
-    imgs.forEach(function(src, idx) {
-      var item = document.createElement('div');
-      item.className = 'shop-gallery-item';
-      var img = document.createElement('img');
-      img.src = src;
-      img.loading = 'lazy';
-      img.alt = 'Shop photo';
-      img.onerror = function() { item.style.display = 'none'; };
-      item.appendChild(img);
-      item.addEventListener('click', function() { openLb(idx); });
-      grid.appendChild(item);
-    });
+
+    fetch('/data/galleries/shop.json', { cache: 'no-cache' })
+      .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+      .then(function (doc) {
+        var pool = (doc.photos || []).map(function (ph) {
+          return typeof ph === 'string' ? ph : ph.src;
+        });
+        for (var i = pool.length - 1; i > 0; i--) {
+          var j = Math.floor(Math.random() * (i + 1));
+          var swap = pool[i]; pool[i] = pool[j]; pool[j] = swap;
+        }
+        imgs = pool.slice(0, SHOW);
+
+        imgs.forEach(function (src, idx) {
+          var item = document.createElement('div');
+          item.className = 'shop-gallery-item';
+          var img = document.createElement('img');
+          img.src = src;
+          img.loading = 'lazy';
+          img.alt = 'Shop photo';
+          img.onerror = function () { item.style.display = 'none'; };
+          item.appendChild(img);
+          item.addEventListener('click', function () { openLb(idx); });
+          grid.appendChild(item);
+        });
+      })
+      .catch(function (err) {
+        if (window.console) console.error('shop gallery:', err);
+      });
 
     var current = 0;
     var lb = document.getElementById('lightbox');
