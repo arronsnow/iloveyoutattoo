@@ -1,0 +1,40 @@
+{
+  "_comment": "Page section order and visibility, edited in the admin. Each page lists its sections top to bottom; set visible:false to hide one without deleting it. Ids match data-section attributes in the markup.",
+  "home": [
+    {
+      "id": "hero",
+      "label": "Hero banner",
+      "visible": true
+    },
+    {
+      "id": "trust",
+      "label": "Trust bar",
+      "visible": true
+    },
+    {
+      "id": "values",
+      "label": "Our values",
+      "visible": true
+    },
+    {
+      "id": "work",
+      "label": "Fresh ink",
+      "visible": true
+    },
+    {
+      "id": "quote",
+      "label": "Quote band",
+      "visible": true
+    },
+    {
+      "id": "reviews",
+      "label": "Client reviews",
+      "visible": true
+    },
+    {
+      "id": "cta",
+      "label": "Booking call-out",
+      "visible": true
+    }
+  ]
+}
