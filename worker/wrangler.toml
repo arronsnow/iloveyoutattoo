@@ -1,0 +1,20 @@
+name = "iloveyou-tattoo-admin"
+main = "src/index.js"
+compatibility_date = "2024-11-01"
+
+[vars]
+GITHUB_OWNER   = "arronsnow"
+GITHUB_REPO    = "iloveyoutattoo"
+GITHUB_BRANCH  = "main"
+ALLOWED_ORIGIN = "https://iloveyou.tattoo"
+
+# Staff accounts live here. Create with:
+#   wrangler kv namespace create USERS
+# then paste the printed id below.
+[[kv_namespaces]]
+binding = "USERS"
+id      = "PASTE_KV_NAMESPACE_ID_HERE"
+
+# Secrets are NOT set here - they never belong in a file that gets committed.
+#   wrangler secret put GITHUB_TOKEN
+#   wrangler secret put SESSION_SECRET
