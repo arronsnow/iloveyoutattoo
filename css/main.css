@@ -704,6 +704,28 @@ footer { background: var(--bg-deep); border-top: 1px solid var(--border); }
   .nav-right { display: flex; order: 2; gap: 10px; margin-left: auto; }
   .nav-social { display: none; }
   .nav-book { padding: 11px 16px; font-size: 11px; letter-spacing: 0.08em; }
+  /* The hero is a third of its desktop height here, so the text lands
+     a third of the way up the picture rather than at the bottom where
+     the gradient is dark. Measured: the eyebrow sat at 34% depth over
+     roughly 20% scrim - gold lettering across a brightly lit face.
+     This darkens the band the words actually occupy. */
+  .hero-bg-overlay {
+    background: linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--scrim) 45%, transparent) 0%,
+      color-mix(in srgb, var(--scrim) 32%, transparent) 16%,
+      color-mix(in srgb, var(--scrim) 74%, transparent) 44%,
+      color-mix(in srgb, var(--scrim) 90%, transparent) 68%,
+      color-mix(in srgb, var(--scrim) 97%, transparent) 100%
+    );
+  }
+  /* a little lift for the two lines that sit highest, where any
+     gradient is still fighting whatever is in the photograph */
+  .hero-eyebrow, .hero-title { text-shadow: 0 1px 14px rgba(0, 0, 0, 0.55); }
+  .hero-eyebrow { letter-spacing: 0.14em; }
+  /* muted grey over a photograph is hard work at this size */
+  .hero-quote { color: var(--text); font-size: 18px; }
+
   .hero-content { padding: 0 28px 60px; }
   .hero-title { font-size: 52px; }
   .artists-grid { grid-template-columns: repeat(2, 1fr); }
