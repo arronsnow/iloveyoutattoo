@@ -23,7 +23,12 @@ async function gh(env, path, init = {}) {
   const res = await fetch(`${API}${path}`, { ...init, headers: headers(env.GITHUB_TOKEN) });
   if (!res.ok) {
     const detail = await res.text().catch(() => '');
-    throw new Error(`GitHub ${init.method || 'GET'} ${path} -> ${res.status} ${detail.slice(0, 300)}`);
+    const err = new Error(`GitHub ${init.method || 'GET'} ${path} -> ${res.status} ${detail.slice(0, 300)}`);
+    err.githubStatus = res.status;
+    // Worth telling apart: a token that cannot write is a setting someone
+    // has to change, not something that will come right on a retry.
+    if (res.status === 401 || res.status === 403) err.configProblem = true;
+    throw err;
   }
   return res.json();
 }

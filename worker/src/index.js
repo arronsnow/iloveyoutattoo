@@ -316,6 +316,16 @@ export default {
       // never echo the raw error to the browser: it can contain repo
       // paths or GitHub responses
       console.error('worker error', err && err.stack || err);
+
+      // "try again" is wrong advice when the publishing token cannot
+      // write - that never comes right on its own, and without saying
+      // so the only way to find out is to read the Worker's logs.
+      if (err && err.configProblem) {
+        return json(env, {
+          error: 'Your changes could not be published: the publishing access for ' +
+                 'this site needs renewing. Nothing was lost - tell Arron, then try again.'
+        }, 502);
+      }
       return json(env, { error: 'Something went wrong. Try again.' }, 500);
     }
   }
