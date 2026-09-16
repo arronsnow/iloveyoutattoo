@@ -2,6 +2,13 @@ name = "iloveyou-tattoo-admin"
 main = "src/index.js"
 compatibility_date = "2024-11-01"
 
+# Stated rather than left to the default, which changes between wrangler
+# versions. Preview URLs would publish every past version of this Worker
+# at its own address, each one wired to the same logins and the same
+# GitHub token - needless extra surface for a service this small.
+workers_dev  = true
+preview_urls = false
+
 [vars]
 GITHUB_OWNER   = "arronsnow"
 GITHUB_REPO    = "iloveyoutattoo"
@@ -13,7 +20,7 @@ ALLOWED_ORIGIN = "https://iloveyou.tattoo"
 # then paste the printed id below.
 [[kv_namespaces]]
 binding = "USERS"
-id      = "PASTE_KV_NAMESPACE_ID_HERE"
+id      = "48b06d060ef34c4ea0d38746c9ec366e"
 
 # Secrets are NOT set here - they never belong in a file that gets committed.
 #   wrangler secret put GITHUB_TOKEN

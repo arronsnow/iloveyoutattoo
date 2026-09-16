@@ -11,4 +11,4 @@
    While it is empty the admin only runs on localhost, in a mode that
    downloads changed files instead of publishing them.
    ───────────────────────────────────────── */
-window.ILY_ADMIN_API = '';
+window.ILY_ADMIN_API = 'https://iloveyou-tattoo-admin.iloveyoutattoo.workers.dev';
