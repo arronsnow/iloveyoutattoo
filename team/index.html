@@ -328,7 +328,7 @@
         height: auto; max-height: none; min-height: 0;
       }
       .acc-panel {
-        flex: 0 0 62px;
+        flex: 0 0 88px;
         border-left: none;
         border-top: 1px solid var(--border);
       }
@@ -337,8 +337,22 @@
          short bios and cramped long ones */
       .acc-panel.open { flex: 0 0 auto; min-height: 0; }
 
-      /* Collapsed row: photo fills the 62px strip behind the name. */
-      .acc-photo { position: absolute; inset: 0; width: auto; height: auto; }
+      /* Collapsed row: a portrait thumbnail, then the name on solid
+         background.
+
+         A full-bleed photo behind the name meant cropping a portrait to
+         a 62px letterbox - every face came out as a band of eyes or a
+         mouth. Upright on a strip the same crop works, which is why the
+         desktop layout gets away with it; lying down it does not. */
+      .acc-photo {
+        position: absolute; left: 0; top: 0; bottom: 0;
+        width: 78px; height: auto;
+      }
+      .acc-photo img { object-position: 50% 18%; }
+      /* The veil exists so the vertical name can read over the photo.
+         Here the name is on solid background, so it only needs to take
+         the edge off the thumbnail - and only over the thumbnail. */
+      .acc-panel:not(.open) .acc-veil { right: auto; width: 78px; opacity: 0.28; }
 
       /* Open: the photo becomes a banner in normal flow and the copy sits
          BELOW it on solid background. Overlaying text on the portrait is
@@ -352,9 +366,9 @@
       .acc-panel.open .acc-photo img { object-position: 50% 20%; }
 
       .acc-name {
-        left: 24px; top: 50%;
+        left: 98px; top: 50%;
         transform: translate(0, -50%) rotate(0deg);
-        font-size: 19px;
+        font-size: 21px;
       }
       /* name sits on the bottom of the banner, just above the copy */
       .acc-panel.open .acc-name {
@@ -383,7 +397,13 @@
         background: linear-gradient(to bottom, transparent, var(--bg));
       }
       .acc-ghost { display: none; }
-      .acc-hint { bottom: auto; top: 50%; left: auto; right: 20px; transform: translateY(-50%) rotate(90deg); }
+      /* the name no longer sits on the picture, so nothing needs fading */
+      .acc-panel:not(.open) .acc-fade { opacity: 0; }
+      .acc-hint {
+        bottom: auto; top: 50%; left: auto; right: 22px;
+        transform: translateY(-50%) rotate(90deg);
+        opacity: 1; font-size: 20px;
+      }
       .gallery-grid { grid-template-columns: repeat(2, 1fr); }
     }
 
