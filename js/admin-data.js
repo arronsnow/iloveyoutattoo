@@ -4,10 +4,10 @@
    Loads the JSON under data/, tracks which files the editor has
    changed, and hands them to whatever can persist them.
 
-   Persistence is deliberately pluggable. Today there is no backend,
-   so save() falls back to downloading the changed files. Once the
-   sign-in service exists it sets ILYData.backend to something with
-   commit(files) and every panel keeps working unchanged.
+   Persistence is pluggable. On the live site ILYData.backend is the
+   sign-in service, and save() publishes straight to the repo. With no
+   backend — the local preview — save() falls back to downloading the
+   changed files so they can be committed by hand.
    ───────────────────────────────────────── */
 window.ILYData = (function () {
   'use strict';
@@ -76,8 +76,8 @@ window.ILYData = (function () {
   function isDirty() { return dirtyKeys().length > 0; }
   function onChange(fn) { listeners.push(fn); }
 
-  /* Until a backend exists, hand the changed files to the browser so
-     they can be dropped into the repo. Clearly a stopgap. */
+  /* No backend: hand the changed files to the browser so they can be
+     dropped into the repo. Only reachable in the local preview. */
   function downloadFallback(files) {
     Object.keys(files).forEach(function (p, i) {
       setTimeout(function () {
@@ -112,6 +112,15 @@ window.ILYData = (function () {
     });
   }
 
+  /* The service updates a gallery manifest itself when a photo is
+     uploaded, so take its version as the new baseline rather than
+     leaving the editor looking dirty against a file it did not change. */
+  function resync(key, doc) {
+    cache[key] = doc;
+    original[key] = JSON.stringify(doc);
+    touch();
+  }
+
   function revert() {
     Object.keys(original).forEach(function (k) { cache[k] = JSON.parse(original[k]); });
     touch();
@@ -128,6 +137,7 @@ window.ILYData = (function () {
     isDirty: isDirty,
     onChange: onChange,
     save: save,
+    resync: resync,
     revert: revert,
     path: path,
     backend: null      // set by the sign-in service

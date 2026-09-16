@@ -11,7 +11,35 @@
 </head>
 <body>
 
-<div class="adm-shell wide">
+<!-- The sign-in screen. Shown until the service says who this is;
+     the admin itself stays hidden behind it. -->
+<div class="adm-gate" id="gate" hidden>
+  <div class="adm-gate-card">
+    <div class="section-eyebrow">I Love You Tattoo</div>
+    <h1>Sign <em>in</em></h1>
+    <p class="adm-sub">Use the email and password Jenni set up for you.</p>
+
+    <div class="adm-gate-error" id="gate-error" hidden></div>
+
+    <form id="gate-form" autocomplete="on">
+      <div class="adm-f">
+        <label for="gate-email">Email</label>
+        <input type="email" id="gate-email" name="email" autocomplete="username" required>
+      </div>
+      <div class="adm-f">
+        <label for="gate-password">Password</label>
+        <input type="password" id="gate-password" name="password" autocomplete="current-password" required>
+      </div>
+      <button class="adm-btn primary adm-gate-btn" id="gate-submit" type="submit">Sign in</button>
+    </form>
+
+    <p class="adm-hint" style="margin-top:18px">
+      Forgotten it? Jenni can set you a new one from her own login.
+    </p>
+  </div>
+</div>
+
+<div class="adm-shell wide" hidden>
 
   <div class="adm-top">
     <div>
@@ -19,16 +47,10 @@
       <h1>Site <em>admin</em></h1>
     </div>
     <div class="adm-who">
+      <span class="adm-whoami" id="who"></span>
       <a class="adm-back" href="/">&larr; View site</a>
+      <button class="adm-mini-btn" id="signout" hidden>Sign out</button>
     </div>
-  </div>
-
-  <!-- Honest about the current state rather than implying a lock that isn't there -->
-  <div class="adm-warn" id="backend-note">
-    <b>Sign-in is not wired up yet.</b>
-    Changes made here cannot publish to the site. Saving downloads the
-    changed files so they can be committed by hand. Once the sign-in
-    service exists, Save will publish directly.
   </div>
 
   <div class="adm-layout">
@@ -44,6 +66,9 @@
       <div class="adm-nav-sep">Appearance</div>
       <button data-panel="sections">Page sections</button>
       <button data-panel="theme">Colours &amp; fonts</button>
+      <div class="adm-nav-sep">Account</div>
+      <button data-panel="users">Logins</button>
+      <button data-panel="account">My password</button>
     </nav>
 
     <div>
@@ -61,6 +86,17 @@
           <label for="gallery-pick">Gallery</label>
           <select id="gallery-pick"></select>
         </div>
+
+        <div class="adm-upload" id="photo-tools" hidden>
+          <label class="adm-btn" for="photo-file">+ Add photos</label>
+          <input type="file" id="photo-file" accept="image/jpeg,image/png,image/webp" multiple hidden>
+          <span class="adm-hint" id="photo-status"></span>
+          <div class="adm-hint">
+            Pick as many as you like. They are shrunk to fit the site before they go up,
+            and each one is published as soon as it finishes.
+          </div>
+        </div>
+
         <div class="adm-photos" id="photo-grid"></div>
         <p class="adm-note" id="photo-note" style="margin-top:14px"></p>
       </section>
@@ -99,6 +135,23 @@
         <div id="theme-form"></div>
       </section>
 
+      <section class="adm-panel" id="p-users">
+        <h2>Logins</h2>
+        <p class="adm-sub">
+          Who can sign in here. An artist can edit their own profile and their own galleries,
+          and nothing else.
+        </p>
+        <p style="margin-bottom:16px"><button class="adm-btn" id="user-add">+ New login</button></p>
+        <div class="adm-userform" id="user-form" hidden></div>
+        <div class="adm-list" id="user-list"></div>
+      </section>
+
+      <section class="adm-panel" id="p-account">
+        <h2>My password</h2>
+        <p class="adm-sub">Changing this signs you out of nothing — your other devices keep working until their session ends.</p>
+        <div id="account-form"></div>
+      </section>
+
       <div class="adm-savebar">
         <span class="adm-dirty clean" id="dirty">No unsaved changes</span>
         <button class="adm-btn" id="revert" disabled>Revert</button>
@@ -111,7 +164,10 @@
 
 <div class="adm-toast" id="toast" hidden></div>
 
+<script src="/js/admin-config.js"></script>
+<script src="/js/admin-auth.js"></script>
 <script src="/js/admin-data.js"></script>
+<script src="/js/admin-people.js"></script>
 <script src="/js/admin-ui.js"></script>
 </body>
 </html>

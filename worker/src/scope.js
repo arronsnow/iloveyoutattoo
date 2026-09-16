@@ -7,8 +7,9 @@
    again here before it reaches the repo.
 
    owner   : anything
-   artist  : their own gallery, their own photos, and their own entry
-             in the shared artists file
+   artist  : the galleries assigned to them, the photo folders those
+             galleries live in, and their own entry in the shared
+             artists file
    ───────────────────────────────────────── */
 
 import { readFile } from './github.js';
@@ -17,10 +18,53 @@ export function galleryFileFor(slug) {
   return `data/galleries/${slug}.json`;
 }
 
+/*
+  A photo folder, relative to images/. Supplied by the client only for
+  owners, so it is checked rather than trusted: no traversal, no
+  absolute paths, no backslashes, and nothing but the characters the
+  existing folders actually use (some contain spaces — "tattoo
+  galleries/zoie piercing").
+*/
+export function cleanGalleryDir(dir) {
+  if (typeof dir !== 'string') return null;
+  const d = dir.trim().replace(/^\/+|\/+$/g, '');
+  if (!d) return null;
+  if (d.indexOf('//') >= 0) return null;
+  // a whitelist, so a backslash or anything else exotic never reaches a path
+  if (!/^[A-Za-z0-9 _./-]+$/.test(d)) return null;
+  if (d.split('/').some((part) => part === '' || part === '.' || part === '..')) return null;
+  return d;
+}
+
+/*
+  An artist's galleries as { gallerySlug: photoFolder }.
+
+  Accounts are stored with a `galleries` map so someone like Zoie can
+  own both a tattoo and a piercing gallery, which live in different
+  folders. Older single-gallery records are read too.
+*/
+export function galleriesFor(user) {
+  if (!user) return {};
+  const out = {};
+
+  if (user.galleries && typeof user.galleries === 'object' && !Array.isArray(user.galleries)) {
+    for (const [slug, dir] of Object.entries(user.galleries)) {
+      if (typeof slug !== 'string' || !slug) continue;
+      out[slug] = cleanGalleryDir(dir);
+    }
+  } else if (user.artist) {
+    out[user.artist] = cleanGalleryDir(user.galleryDir);
+  }
+
+  return out;
+}
+
 /* Paths an artist may write without further inspection. */
-function pathAllowedForArtist(path, slug, galleryDir) {
-  if (path === galleryFileFor(slug)) return true;
-  if (galleryDir && path.startsWith(`images/${galleryDir}/`)) return true;
+function pathAllowedForArtist(path, galleries) {
+  for (const [slug, dir] of Object.entries(galleries)) {
+    if (path === galleryFileFor(slug)) return true;
+    if (dir && path.startsWith(`images/${dir}/`)) return true;
+  }
   return false;
 }
 
@@ -78,7 +122,7 @@ export async function checkWrite(env, user, files) {
   }
 
   const slug = user.artist;
-  const galleryDir = user.galleryDir || null;
+  const galleries = galleriesFor(user);
 
   for (const [path, file] of Object.entries(files)) {
     if (path === 'data/artists.json') {
@@ -87,19 +131,29 @@ export async function checkWrite(env, user, files) {
       if (!verdict.ok) return verdict;
       continue;
     }
-    if (!pathAllowedForArtist(path, slug, galleryDir)) {
+    if (!pathAllowedForArtist(path, galleries)) {
       return { ok: false, why: `not allowed to change ${path}` };
     }
   }
   return { ok: true };
 }
 
-/* Uploads land inside the artist's own photo folder, and the filename
-   is rebuilt from scratch so nothing user-supplied can escape it. */
+/* Uploads land inside a folder the user owns, and the filename is
+   rebuilt from scratch so nothing user-supplied can escape it. An
+   artist's folder comes from their own record; only an owner may name
+   one, and even then it is validated rather than trusted. */
 export function uploadPathFor(user, gallery, galleryDir, extension) {
-  const dir = user.role === 'owner' ? galleryDir : user.galleryDir;
+  if (!user) return null;
+
+  let dir;
+  if (user.role === 'owner') {
+    dir = cleanGalleryDir(galleryDir);
+  } else {
+    const galleries = galleriesFor(user);
+    if (!Object.prototype.hasOwnProperty.call(galleries, gallery)) return null;
+    dir = galleries[gallery];
+  }
   if (!dir) return null;
-  if (user.role !== 'owner' && gallery !== user.artist) return null;
 
   const safeExt = /^(jpe?g|png|webp)$/i.test(extension) ? extension.toLowerCase() : 'jpg';
   const stamp = Date.now().toString(36);

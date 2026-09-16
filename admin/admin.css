@@ -242,3 +242,82 @@ body { background: var(--bg); }
   .adm-layout { grid-template-columns: 1fr; }
   .adm-nav { position: static; flex-direction: row; flex-wrap: wrap; }
 }
+
+/* Any class selector beats the browser's own [hidden] rule, so the
+   attribute has to be stated explicitly or elements that set their own
+   display - the sign-in overlay especially - never go away. */
+[hidden] { display: none !important; }
+
+/* ── sign-in ──────────────────────────────────────────────
+   The admin shell is hidden until the service says who this
+   is, so this screen is the only thing a stranger ever sees. */
+.adm-gate {
+  position: fixed; inset: 0; z-index: 950;
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px; background: var(--bg);
+}
+.adm-gate-card {
+  width: 100%; max-width: 380px;
+  background: var(--bg2); border: 1px solid var(--border);
+  padding: 38px 34px 34px;
+}
+.adm-gate-card h1 {
+  font-family: var(--font-display); font-size: 32px; font-weight: 400;
+  color: var(--cream); margin: 8px 0 6px;
+}
+.adm-gate-card h1 em { font-style: italic; color: var(--gold-lt); }
+.adm-gate-card .adm-sub { margin-bottom: 22px; }
+.adm-gate-btn { width: 100%; margin-top: 6px; }
+.adm-gate-error {
+  background: color-mix(in srgb, #d9736b 14%, var(--bg2));
+  border: 1px solid color-mix(in srgb, #d9736b 45%, transparent);
+  color: #e39189; padding: 11px 14px; margin-bottom: 18px;
+  font-size: 12.5px; line-height: 1.6;
+}
+
+/* the login form uses email and password inputs, which the
+   original field styles did not cover */
+.adm-f input[type=email], .adm-f input[type=password] {
+  width: 100%; background: var(--bg); color: var(--text);
+  border: 1px solid var(--border); padding: 9px 11px;
+  font-family: var(--font-body); font-size: 13.5px;
+}
+.adm-f input[type=email]:focus, .adm-f input[type=password]:focus {
+  outline: none; border-color: var(--accent);
+}
+
+.adm-whoami { color: var(--cream); margin-right: 12px; }
+.adm-who { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+
+.adm-readonly {
+  background: var(--bg); border: 1px solid var(--border);
+  padding: 9px 11px; font-size: 13.5px; color: var(--muted);
+}
+
+/* ── adding photos ── */
+.adm-upload {
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  padding: 16px 18px; margin: 4px 0 20px;
+  background: var(--bg2); border: 1px solid var(--border);
+  border-left: 2px solid var(--gold-dim);
+}
+.adm-upload label.adm-btn { margin: 0; }
+.adm-upload .adm-hint { font-size: 11.5px; color: var(--faint); line-height: 1.6; }
+.adm-upload .adm-hint:last-child { flex-basis: 100%; }
+
+/* ── logins ── */
+.adm-userform {
+  background: var(--bg2); border: 1px solid var(--border);
+  padding: 24px; margin-bottom: 24px;
+}
+.adm-userform h3 {
+  font-family: var(--font-display); font-size: 19px; font-weight: 400;
+  color: var(--cream); margin: 0 0 18px;
+}
+.adm-checks {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(150px,1fr));
+  gap: 7px; margin-top: 4px;
+}
+.adm-check { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--text); cursor: pointer; }
+.adm-check input { accent-color: var(--accent); }
+.adm-check input:disabled + span { color: var(--faint); }

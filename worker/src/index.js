@@ -26,8 +26,8 @@
    ───────────────────────────────────────── */
 
 import { hashPassword, verifyPassword, issueToken, readToken } from './auth.js';
-import { commitFiles } from './github.js';
-import { checkWrite, uploadPathFor, galleryFileFor } from './scope.js';
+import { commitFiles, readFile } from './github.js';
+import { checkWrite, uploadPathFor, galleryFileFor, cleanGalleryDir, galleriesFor } from './scope.js';
 
 const LOGIN_MAX_ATTEMPTS = 8;
 const LOGIN_WINDOW_SECONDS = 900;
@@ -66,7 +66,7 @@ async function currentUser(request, env) {
     name: record.name || claims.email,
     role: record.role,
     artist: record.artist || null,
-    galleryDir: record.galleryDir || null
+    galleries: galleriesFor(record)
   };
 }
 
@@ -120,7 +120,13 @@ export default {
         );
         return json(env, {
           token,
-          user: { email: id, name: record.name || id, role: record.role, artist: record.artist || null }
+          user: {
+            email: id,
+            name: record.name || id,
+            role: record.role,
+            artist: record.artist || null,
+            galleries: galleriesFor(record)
+          }
         });
       }
 
@@ -157,10 +163,19 @@ export default {
         return json(env, { ok: true, ...result });
       }
 
-      /* ── publish a photo ── */
+      /* ── publish a photo ──
+
+         The manifest is updated here rather than by the browser. The
+         stored filename is generated server-side, so the browser cannot
+         know it in advance, and doing both in one commit means a photo
+         is never in the repo without being in its gallery. */
       if (path === '/upload' && request.method === 'POST') {
         if (!user) return json(env, { error: 'Not signed in' }, 401);
-        const { gallery, dataUrl, galleryDir, manifest } = await request.json();
+        const { gallery, dataUrl, galleryDir, caption } = await request.json();
+
+        if (!/^[a-z0-9-]+$/.test(String(gallery || ''))) {
+          return json(env, { error: 'Unknown gallery' }, 400);
+        }
 
         const m = /^data:image\/(jpe?g|png|webp);base64,([A-Za-z0-9+/=]+)$/.exec(dataUrl || '');
         if (!m) return json(env, { error: 'Expected a JPEG, PNG or WebP image' }, 400);
@@ -168,16 +183,34 @@ export default {
         const target = uploadPathFor(user, gallery, galleryDir, m[1]);
         if (!target) return json(env, { error: 'Not allowed to upload to that gallery' }, 403);
 
-        const files = {
-          [target]: { content: m[2], encoding: 'base64' }
-        };
-        if (typeof manifest === 'string') {
-          files[galleryFileFor(gallery)] = { content: manifest, encoding: 'utf-8' };
-        }
+        const manifestPath = galleryFileFor(gallery);
+        const currentRaw = await readFile(env, manifestPath);
+        if (currentRaw === null) return json(env, { error: 'That gallery does not exist yet' }, 404);
 
-        const verdict = await checkWrite(env, user, {
-          [galleryFileFor(gallery)]: { content: manifest || '', encoding: 'utf-8' }
-        });
+        let doc;
+        try {
+          doc = JSON.parse(currentRaw);
+        } catch (e) {
+          return json(env, { error: 'That gallery file is not valid JSON' }, 500);
+        }
+        if (!Array.isArray(doc.photos)) doc.photos = [];
+
+        // match whatever shape the gallery already uses: guests carries
+        // captions as objects, the rest are plain paths
+        const usesObjects = doc.photos.length
+          ? typeof doc.photos[0] === 'object'
+          : typeof caption === 'string' && caption !== '';
+        doc.photos.push(usesObjects
+          ? { src: '/' + target, caption: typeof caption === 'string' ? caption : '' }
+          : '/' + target);
+
+        const files = {
+          [target]: { content: m[2], encoding: 'base64' },
+          [manifestPath]: { content: JSON.stringify(doc, null, 2) + '\n', encoding: 'utf-8' }
+        };
+
+        // check what is really being written, including the image itself
+        const verdict = await checkWrite(env, user, files);
         if (!verdict.ok) return json(env, { error: verdict.why }, 403);
 
         const result = await commitFiles(
@@ -185,7 +218,7 @@ export default {
           `Photo added to ${gallery} by ${user.name}`,
           { name: user.name, email: user.email }
         );
-        return json(env, { ok: true, path: '/' + target, ...result });
+        return json(env, { ok: true, path: '/' + target, photos: doc.photos, ...result });
       }
 
       /* ── manage logins (owner only) ── */
@@ -195,14 +228,21 @@ export default {
         const users = [];
         for (const k of list.keys) {
           const r = await env.USERS.get(k.name, 'json');
-          if (r) users.push({ email: k.name.slice(5), name: r.name, role: r.role, artist: r.artist || null, disabled: !!r.disabled });
+          if (r) users.push({
+            email: k.name.slice(5),
+            name: r.name,
+            role: r.role,
+            artist: r.artist || null,
+            galleries: galleriesFor(r),
+            disabled: !!r.disabled
+          });
         }
         return json(env, { users });
       }
 
       if (path === '/users' && request.method === 'POST') {
         if (!user || user.role !== 'owner') return json(env, { error: 'Not allowed' }, 403);
-        const { email, password, name, role, artist, galleryDir } = await request.json();
+        const { email, password, name, role, artist, galleries } = await request.json();
         const id = String(email || '').trim().toLowerCase();
         if (!id) return json(env, { error: 'Email required' }, 400);
         if (role !== 'owner' && role !== 'artist') return json(env, { error: 'Role must be owner or artist' }, 400);
@@ -215,13 +255,31 @@ export default {
           return json(env, { error: 'Password must be at least 10 characters' }, 400);
         }
 
+        if (role === 'artist' && !artist) {
+          return json(env, { error: 'Pick which artist this login belongs to' }, 400);
+        }
+
+        // normalise here so a bad folder is rejected at the point it is set,
+        // not silently ignored later when someone tries to upload
+        const gmap = {};
+        if (role === 'artist' && galleries && typeof galleries === 'object') {
+          for (const [slug, dir] of Object.entries(galleries)) {
+            if (!/^[a-z0-9-]+$/.test(String(slug))) {
+              return json(env, { error: `Bad gallery name: ${slug}` }, 400);
+            }
+            const clean = cleanGalleryDir(dir);
+            if (!clean) return json(env, { error: `Bad photo folder for ${slug}` }, 400);
+            gmap[slug] = clean;
+          }
+        }
+
         const creds = password ? await hashPassword(password) : { hash: existing.hash, salt: existing.salt };
         await env.USERS.put(`user:${id}`, JSON.stringify({
           ...creds,
           name: name || (existing && existing.name) || id,
           role,
-          artist: role === 'artist' ? (artist || null) : null,
-          galleryDir: role === 'artist' ? (galleryDir || null) : null,
+          artist: role === 'artist' ? artist : null,
+          galleries: role === 'artist' ? gmap : {},
           disabled: false
         }));
         return json(env, { ok: true, created: !existing });

@@ -6,7 +6,6 @@
 <meta name="robots" content="noindex, nofollow">
 <title>Theme Editor - I Love You Tattoo</title>
 <link rel="stylesheet" href="../css/main.css">
-<script src="../js/admin.js"></script>
 <style>
   /* The editor chrome deliberately uses its own neutral palette so it
      stays readable no matter what the site theme is set to. */
@@ -135,19 +134,40 @@
 </head>
 <body>
 <div id="adm-locked" style="display:none;max-width:460px;margin:0 auto;padding:130px 28px;text-align:center;font-family:var(--font-body);">
-  <h1 style="font-family:var(--font-display);font-size:34px;font-weight:400;color:var(--cream);margin:0 0 12px;">Not signed in</h1>
-  <p style="font-size:14.5px;line-height:1.75;color:var(--muted);margin:0 0 26px;">This tool is for admins. If you signed in as an artist, use your profile instead.</p>
-  <a class="btn-outline" href="index.html" style="margin-right:10px;">Admin panel</a>
+  <h1 style="font-family:var(--font-display);font-size:34px;font-weight:400;color:var(--cream);margin:0 0 12px;" id="lock-title">Not signed in</h1>
+  <p style="font-size:14.5px;line-height:1.75;color:var(--muted);margin:0 0 26px;" id="lock-why">Sign in on the admin page first, then come back.</p>
+  <a class="btn-outline" href="index.html" style="margin-right:10px;">Go to the admin</a>
   <a class="btn-gold" href="../index.html">&#8592; Back to the site</a>
 </div>
+
+<script src="../js/admin-config.js"></script>
+<script src="../js/admin-auth.js"></script>
 <script>
-  // Gate before anything renders. Same caveat as everywhere: this hides
-  // the tool, it does not secure it - lock /admin/ at the host.
-  // admin or owner only - an artist account can sign in but must not
-  // be able to restyle the whole site
-  if (!window.ILYTAdmin || !window.ILYTAdmin.atLeast('admin')) {
-    document.documentElement.setAttribute('data-locked','1');
-  }
+  /* Locked until the service says this is an owner. Restyling the whole
+     site is not something an artist account should be able to do, and
+     the service refuses their writes to data/theme.json anyway. */
+  document.documentElement.setAttribute('data-locked', '1');
+
+  window.ILYAuth.onNeedsSignIn(function () {
+    document.documentElement.setAttribute('data-locked', '1');
+  });
+
+  window.ILYAuth.ready.then(function (user) {
+    if (user.role !== 'owner') {
+      document.getElementById('lock-title').textContent = 'Not for artist logins';
+      document.getElementById('lock-why').textContent =
+        'The colours and fonts belong to the whole site, so only Jenni can change them. ' +
+        'Your own profile and galleries are on the admin page.';
+      return;
+    }
+    document.documentElement.removeAttribute('data-locked');
+
+    // the local preview has no service to publish through
+    if (window.ILYAuth.isOffline()) {
+      var pub = document.getElementById('btn-publish');
+      if (pub) pub.hidden = true;
+    }
+  });
 </script>
 <style>
   html[data-locked] .ed-shell { display: none !important; }
@@ -168,7 +188,8 @@
     <div class="ed-top-spacer"></div>
     <button class="ed-btn" id="btn-revert">Revert changes</button>
     <button class="ed-btn" id="btn-save">Save to this browser</button>
-    <button class="ed-btn primary" id="btn-export">Export CSS →</button>
+    <button class="ed-btn" id="btn-export">Export CSS →</button>
+    <button class="ed-btn primary" id="btn-publish">Publish to the site</button>
   </div>
 
   <div class="ed-body">
@@ -177,7 +198,8 @@
         <strong>How this works.</strong> Edits preview instantly on the right.
         <em>Save to this browser</em> keeps them on your machine so you can live with
         them for a bit - visitors won't see them. When you're happy,
-        <em>Export CSS</em> and paste the block into <code>css/main.css</code> to ship it.
+        <em>Publish to the site</em> makes them live for everyone.
+        <em>Export CSS</em> is only for changing the built-in defaults by hand.
       </div>
       <!-- control rows injected here -->
     </aside>
@@ -186,19 +208,20 @@
       <div class="ed-preview-bar">
         <label>Preview page
           <select class="ed-select" id="page" style="margin-left:6px;">
-            <option value="../index.html">Home</option>
-            <option value="../pages/team.html">The Team (galleries)</option>
-            <option value="../pages/events.html">Events (light sections)</option>
-            <option value="../pages/about.html">The Shop</option>
-            <option value="../pages/booking.html">Consult</option>
-            <option value="../pages/aftercare.html">Aftercare</option>
+            <option value="/">Home</option>
+            <option value="/team/">The Team (galleries)</option>
+            <option value="/guests/">Guest artists</option>
+            <option value="/events/">Events (light sections)</option>
+            <option value="/about/">The Shop</option>
+            <option value="/booking/">Consult</option>
+            <option value="/aftercare/">Aftercare</option>
           </select>
         </label>
         <button class="ed-btn" id="btn-width" data-mode="desktop">Desktop</button>
         <span id="status"></span>
       </div>
       <div class="ed-frame-wrap" id="framewrap">
-        <iframe id="frame" src="../index.html" title="Site preview"></iframe>
+        <iframe id="frame" src="/" title="Site preview"></iframe>
       </div>
     </section>
   </div>
@@ -530,6 +553,42 @@
       document.getElementById('btn-copy').textContent = 'Copy to clipboard';
     }, 1800);
   });
+  /* ── publishing ──
+
+     data/theme.json is what every visitor gets: js/theme.js reads it on
+     every page load. A token left at the stylesheet default is still
+     written out, so the published file is a complete snapshot rather
+     than a diff nobody can read later. */
+  function themeDoc() {
+    var doc = {
+      _comment: 'Theme published from the admin theme editor. js/theme.js applies ' +
+                'these for EVERY visitor. Any token omitted falls back to the ' +
+                'default in css/main.css.',
+      fonts: {},
+      colors: {}
+    };
+    FONT_KEYS.forEach(function (k) { doc.fonts[k.replace('font-', '')] = theme[k]; });
+    COLOR_KEYS.forEach(function (k) { doc.colors[k] = theme[k]; });
+    return doc;
+  }
+
+  document.getElementById('btn-publish').addEventListener('click', function () {
+    var btn = this;
+    if (!confirm('Publish these colours and fonts to the live site?')) return;
+
+    btn.disabled = true;
+    flash('Publishing…');
+    window.ILYAuth.backend.commit({
+      'data/theme.json': JSON.stringify(themeDoc(), null, 2) + '\n'
+    }).then(function () {
+      btn.disabled = false;
+      flash('Published. Visitors see it in a minute or two.');
+    }).catch(function (e) {
+      btn.disabled = false;
+      flash('Could not publish: ' + e.message);
+    });
+  });
+
   document.getElementById('btn-download').addEventListener('click', function () {
     var blob = new Blob([buildCSS()], { type: 'text/css' });
     var a = document.createElement('a');
