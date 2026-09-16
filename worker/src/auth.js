@@ -9,7 +9,15 @@
               constant-time compare.
    ───────────────────────────────────────── */
 
-const ITERATIONS = 210000;
+/* The Workers runtime refuses PBKDF2 above 100k iterations:
+
+     NotSupportedError: Pbkdf2 failed: iteration counts above 100000
+     are not supported (requested 210000)
+
+   Node has no such cap, so this only shows up once the code is actually
+   running on Cloudflare - which is why scope.test.mjs asserts the value
+   rather than trusting it. Raising it breaks every login. */
+const ITERATIONS = 100000;
 const KEY_BITS = 256;
 
 const enc = new TextEncoder();

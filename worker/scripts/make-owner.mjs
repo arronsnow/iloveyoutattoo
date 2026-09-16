@@ -23,7 +23,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createInterface } from 'node:readline';
 
-const ITERATIONS = 210000;   // must match src/auth.js
+const ITERATIONS = 100000;   // must match src/auth.js - the Workers runtime caps this
 const KEY_BITS = 256;
 
 const [email, name] = process.argv.slice(2).filter((a) => !a.startsWith('--'));
@@ -154,15 +154,29 @@ writeFileSync(file, JSON.stringify(record), 'utf8');
 
 try {
   const key = 'user:' + email.trim().toLowerCase();
-  const res = spawnSync(
-    process.platform === 'win32' ? 'wrangler.cmd' : 'wrangler',
-    ['kv', 'key', 'put', key, '--binding=USERS', '--remote', '--path', file],
-    { stdio: 'inherit' }
-  );
+  const args = ['kv', 'key', 'put', key, '--binding=USERS', '--remote', '--path', file];
+
+  // On Windows, wrangler is a .cmd, and Node refuses to spawn one without a
+  // shell (the fix for CVE-2024-27980). Going through the shell means
+  // quoting the arguments ourselves - the temp path can contain spaces.
+  const onWindows = process.platform === 'win32';
+  const quote = (a) => (/[\s"^&|<>()]/.test(a) ? '"' + a.replace(/"/g, '""') + '"' : a);
+
+  const res = onWindows
+    ? spawnSync('wrangler.cmd ' + args.map(quote).join(' '), { stdio: 'inherit', shell: true })
+    : spawnSync('wrangler', args, { stdio: 'inherit' });
+
+  if (res.error) {
+    console.error('\nCould not run wrangler: ' + res.error.message);
+    console.error('Is it installed and on your PATH? Check with: wrangler --version');
+    process.exit(1);
+  }
   if (res.status !== 0) {
-    console.error('\nwrangler failed. The account was NOT created.');
+    console.error('\nwrangler exited with ' + res.status + '. The account was NOT created.');
+    console.error('Run this from the worker/ folder, and check you are logged in: wrangler whoami');
     process.exit(res.status || 1);
   }
+
   console.log('\nOwner login created for ' + email + '.');
   console.log('Sign in at https://iloveyou.tattoo/admin/ and change the password there.');
 } finally {

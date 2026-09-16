@@ -94,28 +94,17 @@ There is no sign-up, by design. The first owner account is created by
 hand, once:
 
 ```sh
-node -e "
-const { webcrypto: crypto } = require('crypto');
-const password = process.argv[1];
-const enc = new TextEncoder();
-const salt = crypto.getRandomValues(new Uint8Array(16));
-crypto.subtle.importKey('raw', enc.encode(password), 'PBKDF2', false, ['deriveBits'])
-  .then(k => crypto.subtle.deriveBits({name:'PBKDF2', salt, iterations:210000, hash:'SHA-256'}, k, 256))
-  .then(bits => {
-    const b64u = b => Buffer.from(b).toString('base64url');
-    console.log(JSON.stringify({
-      hash: b64u(bits), salt: b64u(salt),
-      name: 'Jenni', role: 'owner', artist: null, galleries: {}, disabled: false
-    }));
-  });
-" 'the-password-you-chose'
+cd worker
+node scripts/make-owner.mjs jenni@example.com "Jenni"
 ```
 
-Take the JSON it prints and write it into KV:
+It asks for the password twice and hides what you type, so it never
+reaches your shell history. What goes to Cloudflare is a PBKDF2 hash and
+its salt, never the password.
 
-```sh
-wrangler kv key put --binding=USERS "user:jenni@example.com" '<the JSON>' --remote
-```
+Run it again with a second email to create another owner — two owners
+means neither can be locked out, and nobody is allowed to delete their
+own login.
 
 Then sign in at `https://iloveyou.tattoo/admin/`. Everyone else —
 artists, and any second owner — Jenni creates from **Logins** inside the

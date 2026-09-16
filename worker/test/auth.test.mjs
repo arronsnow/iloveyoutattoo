@@ -1,9 +1,40 @@
 /* Password hashing and session tokens. Run with: npm test */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 import { hashPassword, verifyPassword, issueToken, readToken } from '../src/auth.js';
 
 const SECRET = 'a-long-random-testing-secret-value';
+
+/* The Workers runtime refuses PBKDF2 above 100k iterations, and Node
+   does not - so a value that passes every other test here still breaks
+   every login once deployed. Asserting it is the only way this file can
+   catch a runtime limit it does not itself run under. */
+test('the work factor stays within what the Workers runtime allows', async () => {
+  const src = await readFile(new URL('../src/auth.js', import.meta.url), 'utf8');
+  const match = /const ITERATIONS = (\d+);/.exec(src);
+  assert.ok(match, 'ITERATIONS not found in src/auth.js');
+  const iterations = Number(match[1]);
+  assert.ok(iterations <= 100000,
+    `PBKDF2 iterations must be <= 100000 for Cloudflare Workers, found ${iterations}`);
+  assert.ok(iterations >= 100000,
+    `do not weaken below the 100000 the runtime allows, found ${iterations}`);
+});
+
+/* The bootstrap script writes records the Worker has to be able to
+   verify, so its parameters cannot drift from auth.js. */
+test('make-owner.mjs hashes with the same parameters as the Worker', async () => {
+  const a = await readFile(new URL('../src/auth.js', import.meta.url), 'utf8');
+  const b = await readFile(new URL('../scripts/make-owner.mjs', import.meta.url), 'utf8');
+  assert.equal(
+    /const ITERATIONS = (\d+);/.exec(a)[1],
+    /const ITERATIONS = (\d+);/.exec(b)[1]
+  );
+  assert.equal(
+    /const KEY_BITS = (\d+);/.exec(a)[1],
+    /const KEY_BITS = (\d+);/.exec(b)[1]
+  );
+});
 
 test('a password verifies against its own hash', async () => {
   const stored = await hashPassword('correct horse battery staple');
