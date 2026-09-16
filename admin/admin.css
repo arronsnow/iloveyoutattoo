@@ -187,6 +187,14 @@ body { background: var(--bg); }
 .adm-mini-btn:hover { color: var(--cream); border-color: var(--border2); }
 .adm-mini-btn.danger:hover { color: #fff; background: #9c3b34; border-color: #9c3b34; }
 
+/* up/down beside a list row, the touch and keyboard route to reordering */
+.adm-reorder { display: inline-flex; flex: 0 0 auto; border: 1px solid var(--border); }
+.adm-reorder .adm-move {
+  min-height: 30px; min-width: 30px; font-size: 13px;
+  border-right: 1px solid var(--border);
+}
+.adm-reorder .adm-move:last-child { border-right: none; }
+
 /* form fields */
 .adm-f { margin-bottom: 12px; }
 .adm-f label {
@@ -204,8 +212,9 @@ body { background: var(--bg); }
 .adm-f2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
 /* photo grid */
-.adm-photos { display: grid; grid-template-columns: repeat(auto-fill, minmax(116px,1fr)); gap: 7px; }
-.adm-photo { position: relative; aspect-ratio: 1; background: var(--bg-deep); border: 1px solid var(--border); cursor: grab; }
+.adm-photos { display: grid; grid-template-columns: repeat(auto-fill, minmax(124px,1fr)); gap: 8px; }
+.adm-photo { background: var(--bg-deep); border: 1px solid var(--border); }
+.adm-photo-frame { position: relative; aspect-ratio: 1; cursor: grab; }
 .adm-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .adm-photo.dragging { opacity: .35; }
 .adm-photo.drop-target { border-color: var(--accent); }
@@ -214,16 +223,33 @@ body { background: var(--bg); }
   color: var(--gold-lt); font-size: 10px; padding: 2px 5px;
 }
 .adm-photo .adm-photo-x {
-  position: absolute; top: 4px; right: 4px; width: 20px; height: 20px;
+  position: absolute; top: 4px; right: 4px; width: 28px; height: 28px;
+  display: flex; align-items: center; justify-content: center;
   background: rgba(16,11,2,.85); color: var(--muted); border: none;
-  cursor: pointer; font-size: 12px; line-height: 1;
+  cursor: pointer; font-size: 13px; line-height: 1;
 }
 .adm-photo .adm-photo-x:hover { background: #9c3b34; color: #fff; }
 .adm-photo .adm-photo-cap {
-  position: absolute; left: 0; right: 0; bottom: 0; padding: 3px 5px;
-  background: rgba(16,11,2,.85); color: var(--cream); font-size: 10px;
-  border: none; width: 100%; font-family: var(--font-body);
+  display: block; width: 100%; padding: 6px 7px;
+  background: var(--shade); color: var(--cream); font-size: 11px;
+  border: none; border-top: 1px solid var(--border); font-family: var(--font-body);
 }
+.adm-photo .adm-photo-cap:focus { outline: none; background: var(--bg); }
+
+/* Dragging is a mouse gesture - HTML5 drag events never fire on a
+   touchscreen - so every reorder is also a pair of buttons. They are
+   the only way to reorder on a phone, and quicker than dragging when
+   a photo only needs to move one place. */
+.adm-photo-tools { display: flex; border-top: 1px solid var(--border); }
+.adm-move {
+  flex: 1; min-height: 34px; background: none; border: none;
+  border-right: 1px solid var(--border);
+  color: var(--muted); font-size: 15px; line-height: 1; cursor: pointer;
+  font-family: var(--font-body);
+}
+.adm-move:last-child { border-right: none; }
+.adm-move:hover:not(:disabled) { background: var(--bg3); color: var(--gold-lt); }
+.adm-move:disabled { opacity: .3; cursor: default; }
 
 /* colour swatches */
 .adm-swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px,1fr)); gap: 12px; }
@@ -239,8 +265,77 @@ body { background: var(--bg); }
 .adm-toast.err { background: #9c3b34; color: #fff; }
 
 @media (max-width: 860px) {
-  .adm-layout { grid-template-columns: 1fr; }
-  .adm-nav { position: static; flex-direction: row; flex-wrap: wrap; }
+  .adm-shell { padding: 26px 16px 40px; }
+  .adm-layout { grid-template-columns: 1fr; gap: 18px; }
+
+  .adm-top { padding-bottom: 16px; margin-bottom: 18px; gap: 12px; }
+  .adm-top h1 { font-size: 28px; }
+
+  /* One scrolling row rather than nine buttons wrapped into a block.
+     Bleeds to the screen edges so it reads as a strip, and sticks to
+     the top so switching panels never means scrolling back up. */
+  .adm-nav {
+    position: sticky; top: 0; z-index: 30;
+    flex-direction: row; flex-wrap: nowrap;
+    gap: 6px; margin: 0 -16px; padding: 10px 16px;
+    overflow-x: auto; overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    background: var(--bg); border-bottom: 1px solid var(--border);
+  }
+  .adm-nav::-webkit-scrollbar { display: none; }
+  .adm-nav .adm-nav-sep { display: none; }
+  .adm-nav button {
+    flex: 0 0 auto; white-space: nowrap;
+    min-height: 40px; padding: 10px 15px;
+    border: 1px solid var(--border);
+  }
+  .adm-nav button.on { border-color: var(--accent); }
+
+  /* side-by-side fields are unusable at this width */
+  .adm-f2 { grid-template-columns: 1fr; }
+
+  .adm-panel h2 { font-size: 21px; }
+
+  /* Name and role on one line, every control on the next. The zero-height
+     ::after is a deliberate line break: without it the buttons wrap one
+     at a time and the row grows to three ragged lines. */
+  .adm-item-head { flex-wrap: wrap; row-gap: 10px; column-gap: 8px; }
+  .adm-item-head .adm-name { flex: 1 1 auto; min-width: 0; order: 0; }
+  .adm-item-head .adm-meta { flex: 0 1 auto; text-align: right; order: 0; }
+  .adm-item-head::after { content: ''; flex-basis: 100%; height: 0; order: 1; }
+  .adm-item-head .adm-reorder { order: 2; margin-right: auto; }
+  .adm-item-head .adm-mini-btn { order: 2; flex: 0 0 auto; }
+  .adm-item-head .adm-handle { display: none; }   /* dragging needs a mouse */
+  .adm-reorder .adm-move { min-height: 38px; min-width: 42px; }
+  .adm-item { padding: 12px; }
+
+  /* comfortable targets for a thumb */
+  .adm-mini-btn { min-height: 38px; padding: 8px 14px; font-size: 12px; }
+  .adm-photo .adm-photo-x { width: 34px; height: 34px; font-size: 15px; }
+  .adm-move { min-height: 42px; font-size: 17px; }
+  .adm-photos { grid-template-columns: repeat(auto-fill, minmax(104px,1fr)); }
+
+  .adm-savebar {
+    margin: 18px -16px 0; padding: 12px 16px;
+    border-left: none; border-right: none;
+    padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  }
+  .adm-savebar .adm-dirty { font-size: 11px; }
+  .adm-savebar .adm-btn { padding: 11px 16px; }
+
+  .adm-upload { padding: 14px; gap: 10px; }
+  .adm-upload label.adm-btn { width: 100%; text-align: center; padding: 14px 20px; }
+
+  .adm-userform { padding: 18px 16px; }
+  .adm-checks { grid-template-columns: 1fr 1fr; }
+  .adm-gate-card { padding: 30px 22px 26px; }
+}
+
+@media (max-width: 420px) {
+  .adm-photos { grid-template-columns: repeat(auto-fill, minmax(92px,1fr)); }
+  .adm-top h1 { font-size: 25px; }
+  .adm-who { font-size: 11px; gap: 8px; }
 }
 
 /* Any class selector beats the browser's own [hidden] rule, so the

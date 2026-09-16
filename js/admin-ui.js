@@ -80,6 +80,33 @@
     return wrap;
   }
 
+  /* Up/down buttons for a reorderable list.
+
+     Dragging is a mouse gesture: HTML5 drag events never fire on a
+     touchscreen, so on a phone these are the only way to reorder
+     anything. They are quicker than dragging for a single step anyway,
+     and they work from the keyboard. */
+  function reorderButtons(arr, i, rerender, label) {
+    var wrap = el('span', 'adm-reorder');
+    [['&#8593;', -1, 'up'], ['&#8595;', 1, 'down']].forEach(function (spec) {
+      var b = el('button', 'adm-move', spec[0]);
+      b.type = 'button';
+      b.title = 'Move ' + spec[2];
+      b.setAttribute('aria-label', 'Move ' + (label || 'item') + ' ' + spec[2]);
+      b.disabled = (spec[1] < 0 && i === 0) || (spec[1] > 0 && i === arr.length - 1);
+      b.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var to = i + spec[1];
+        if (to < 0 || to >= arr.length) return;
+        arr.splice(to, 0, arr.splice(i, 1)[0]);
+        D.touch();
+        rerender();
+      });
+      wrap.appendChild(b);
+    });
+    return wrap;
+  }
+
   /* drag-to-reorder over a container of rows, kept in sync with arr */
   function sortable(container, itemSelector, arr, onDone) {
     if (container._sortableBound) return;
@@ -157,6 +184,8 @@
       head.appendChild(el('span', 'adm-meta', esc(a.role || '')));
 
       if (owner) {
+        head.appendChild(reorderButtons(arr, i, renderArtists, a.name || 'artist'));
+
         var edit = el('button', 'adm-mini-btn', 'Edit');
         edit.addEventListener('click', function () { row.classList.toggle('open'); });
         head.appendChild(edit);
@@ -367,45 +396,80 @@
 
     var arr = doc.photos || (doc.photos = []);
 
+    function move(from, to) {
+      if (to < 0 || to >= arr.length) return;
+      arr.splice(to, 0, arr.splice(from, 1)[0]);
+      D.touch();
+      renderPhotos();
+    }
+
     arr.forEach(function (ph, i) {
       var src = typeof ph === 'string' ? ph : ph.src;
       var cell = el('div', 'adm-photo');
-      cell.draggable = true;
+
+      // the image is the drag handle; the buttons below it are not, so a
+      // tap on one never starts a drag
+      var frame = el('div', 'adm-photo-frame');
+      frame.draggable = true;
 
       var img = el('img');
       img.src = src;
       img.loading = 'lazy';
-      cell.appendChild(img);
-      cell.appendChild(el('span', 'adm-photo-n', String(i + 1)));
+      img.alt = '';
+      frame.appendChild(img);
+      frame.appendChild(el('span', 'adm-photo-n', String(i + 1)));
 
       var x = el('button', 'adm-photo-x', '&#10005;');
-      x.title = 'Remove from gallery';
+      x.type = 'button';
+      x.title = 'Take this photo off the site';
+      x.setAttribute('aria-label', 'Remove photo ' + (i + 1));
       x.addEventListener('click', function (e) {
         e.stopPropagation();
+        if (!confirm('Take this photo off the site?')) return;
         arr.splice(i, 1);
         D.touch();
         renderPhotos();
       });
-      cell.appendChild(x);
+      frame.appendChild(x);
+      cell.appendChild(frame);
 
       if (ph && typeof ph === 'object') {
         var cap = el('input', 'adm-photo-cap');
         cap.type = 'text';
         cap.value = ph.caption || '';
         cap.placeholder = 'caption';
+        cap.setAttribute('aria-label', 'Caption for photo ' + (i + 1));
         cap.addEventListener('mousedown', function (e) { e.stopPropagation(); });
         cap.addEventListener('input', function () { ph.caption = cap.value; D.touch(); });
         cell.appendChild(cap);
       }
 
+      /* Reorder buttons. Dragging does not exist on a touchscreen, so
+         without these a phone cannot reorder a gallery at all. */
+      var tools = el('div', 'adm-photo-tools');
+      [['&#8249;', -1, 'earlier'], ['&#8250;', 1, 'later']].forEach(function (spec) {
+        var b = el('button', 'adm-move', spec[0]);
+        b.type = 'button';
+        b.title = 'Move ' + spec[2];
+        b.setAttribute('aria-label', 'Move photo ' + (i + 1) + ' ' + spec[2]);
+        b.disabled = (spec[1] < 0 && i === 0) || (spec[1] > 0 && i === arr.length - 1);
+        b.addEventListener('click', function (e) {
+          e.stopPropagation();
+          move(i, i + spec[1]);
+        });
+        tools.appendChild(b);
+      });
+      cell.appendChild(tools);
+
       grid.appendChild(cell);
     });
 
     $('photo-note').textContent = arr.length + ' photo' + (arr.length === 1 ? '' : 's') +
-      '. Drag to reorder, and use the X to take one off the site.' +
+      '. Use the arrows to reorder, or drag them about on a computer. ' +
+      'The X takes a photo off the site.' +
       (A.isOffline() ? ' Adding photos needs the live site.' : '');
 
-    sortable(grid, '.adm-photo', arr, renderPhotos);
+    sortable(grid, '.adm-photo', arr, renderPhotos);   // drag still works with a mouse
   }
 
   /* ── Reviews ── */
@@ -437,6 +501,8 @@
       head.appendChild(el('span', 'adm-handle', '&#8942;&#8942;'));
       var nameEl = el('span', 'adm-name', esc(r[nameKey] || 'Review ' + (i + 1)));
       head.appendChild(nameEl);
+
+      head.appendChild(reorderButtons(arr, i, renderReviews, 'review'));
 
       var del = el('button', 'adm-mini-btn danger', 'Remove');
       del.addEventListener('click', function () {
@@ -529,7 +595,7 @@
     if (!doc || !Array.isArray(doc.home)) return;
     var arr = doc.home;
 
-    arr.forEach(function (sec) {
+    arr.forEach(function (sec, i) {
       var row = el('div', 'adm-item');
       row.draggable = true;
       row.style.opacity = sec.visible === false ? '.5' : '';
@@ -538,6 +604,7 @@
       head.appendChild(el('span', 'adm-handle', '&#8942;&#8942;'));
       head.appendChild(el('span', 'adm-name', esc(sec.label || sec.id)));
       head.appendChild(el('span', 'adm-meta', esc(sec.id)));
+      head.appendChild(reorderButtons(arr, i, renderSections, sec.label || sec.id));
 
       var vis = el('button', 'adm-mini-btn', sec.visible === false ? 'Hidden' : 'Shown');
       vis.addEventListener('click', function () {

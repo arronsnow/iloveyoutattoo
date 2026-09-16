@@ -31,6 +31,13 @@ window.ILYAuth = (function () {
     return h === 'localhost' || h === '127.0.0.1' || h === '' || h === '[::1]';
   }
 
+  /* A service running on this machine too - wrangler dev, say. Worth
+     distinguishing, because a local copy of the site cannot reach the
+     deployed Worker at all: its CORS only answers the live site. */
+  function apiIsLocal() {
+    return /^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(:|\/|$)/.test(API);
+  }
+
   /* sessionStorage can throw outright in a locked-down browser, so
      every use of it is wrapped rather than assumed */
   function remember(t) {
@@ -164,7 +171,10 @@ window.ILYAuth = (function () {
      wanting a password, or localhost with no service configured. The
      last one never happens on the real site, because API is set there. */
   function start() {
-    if (!API) {
+    // On this machine, preview unless the service is here too. Without
+    // this, opening the local copy just shows a sign-in it can never
+    // satisfy, because the deployed Worker refuses localhost.
+    if (!API || (isLocal() && !apiIsLocal())) {
       if (isLocal()) {
         offline = true;
         user = previewUser();

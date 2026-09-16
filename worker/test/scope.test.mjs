@@ -1,7 +1,7 @@
 /* What each role may write. Run with: npm test */
 import { test, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
-import { checkWrite, uploadPathFor, cleanGalleryDir, galleriesFor } from '../src/scope.js';
+import { checkWrite, uploadPathFor, cleanGalleryDir, galleriesFor, dirFromPhotos } from '../src/scope.js';
 
 const BACKSLASH = String.fromCharCode(92);
 
@@ -210,10 +210,53 @@ test('an artist with two galleries uploads into the right one', () => {
   assert.match(uploadPathFor(zoie, 'zoie-piercing', null, 'png'), /^images\/tattoo galleries\/zoie piercing\//);
 });
 
-test('the owner names the folder but it is still validated', () => {
+test('the folder a gallery already uses is read off the gallery', () => {
+  assert.equal(
+    dirFromPhotos(['/images/tattoo galleries/millie/millie_002.jpg']),
+    'tattoo galleries/millie'
+  );
+  assert.equal(
+    dirFromPhotos([{ src: '/images/guests/guests_001.jpg', caption: 'x' }]),
+    'guests'
+  );
+  // skips entries it cannot read rather than giving up
+  assert.equal(dirFromPhotos([null, 42, '/images/the shop/a.jpg']), 'the shop');
+  assert.equal(dirFromPhotos([]), null);
+  assert.equal(dirFromPhotos(null), null);
+  assert.equal(dirFromPhotos(['/not/images/x.jpg']), null);
+});
+
+test('a path that tries to escape images/ is not accepted from a gallery either', () => {
+  assert.equal(dirFromPhotos(['/images/../../etc/passwd/x.jpg']), null);
+});
+
+test('an owner can add photos to any gallery, including ones they own no folder for', () => {
+  // the regression this replaces: an owner's galleries map is empty, so the
+  // browser sent no folder and every upload was refused
+  assert.match(
+    uploadPathFor(owner, 'millie', 'tattoo galleries/millie', 'jpg'),
+    /^images\/tattoo galleries\/millie\/upload_/
+  );
   assert.match(uploadPathFor(owner, 'guests', 'guests', 'webp'), /^images\/guests\/upload_/);
+  assert.match(
+    uploadPathFor(owner, 'zoie-piercing', 'tattoo galleries/zoie piercing', 'png'),
+    /^images\/tattoo galleries\/zoie piercing\/upload_/
+  );
+});
+
+test('an owner still cannot name a folder that escapes images/', () => {
   assert.equal(uploadPathFor(owner, 'guests', '../.github/workflows', 'jpg'), null);
   assert.equal(uploadPathFor(owner, 'guests', null, 'jpg'), null);
+});
+
+test('a derived folder never widens what an artist may reach', () => {
+  // even handed the right folder for someone else's gallery
+  assert.equal(uploadPathFor(millie, 'jenni', 'tattoo galleries/jenni', 'jpg'), null);
+  // and their own record still wins over anything passed in
+  assert.match(
+    uploadPathFor(millie, 'millie', 'tattoo galleries/jenni', 'jpg'),
+    /^images\/tattoo galleries\/millie\//
+  );
 });
 
 test('the file extension cannot be used to smuggle anything', () => {

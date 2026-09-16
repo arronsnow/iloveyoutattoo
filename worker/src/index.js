@@ -27,7 +27,7 @@
 
 import { hashPassword, verifyPassword, issueToken, readToken } from './auth.js';
 import { commitFiles, readFile } from './github.js';
-import { checkWrite, uploadPathFor, galleryFileFor, cleanGalleryDir, galleriesFor } from './scope.js';
+import { checkWrite, uploadPathFor, galleryFileFor, cleanGalleryDir, galleriesFor, dirFromPhotos } from './scope.js';
 
 const LOGIN_MAX_ATTEMPTS = 8;
 const LOGIN_WINDOW_SECONDS = 900;
@@ -180,9 +180,6 @@ export default {
         const m = /^data:image\/(jpe?g|png|webp);base64,([A-Za-z0-9+/=]+)$/.exec(dataUrl || '');
         if (!m) return json(env, { error: 'Expected a JPEG, PNG or WebP image' }, 400);
 
-        const target = uploadPathFor(user, gallery, galleryDir, m[1]);
-        if (!target) return json(env, { error: 'Not allowed to upload to that gallery' }, 403);
-
         const manifestPath = galleryFileFor(gallery);
         const currentRaw = await readFile(env, manifestPath);
         if (currentRaw === null) return json(env, { error: 'That gallery does not exist yet' }, 404);
@@ -194,6 +191,12 @@ export default {
           return json(env, { error: 'That gallery file is not valid JSON' }, 500);
         }
         if (!Array.isArray(doc.photos)) doc.photos = [];
+
+        // where this gallery's photos already live, taken from the gallery
+        // itself; what the browser sent is only a fallback for an empty one
+        const folder = dirFromPhotos(doc.photos) || cleanGalleryDir(galleryDir);
+        const target = uploadPathFor(user, gallery, folder, m[1]);
+        if (!target) return json(env, { error: 'Not allowed to upload to that gallery' }, 403);
 
         // match whatever shape the gallery already uses: guests carries
         // captions as objects, the rest are plain paths

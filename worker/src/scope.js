@@ -59,6 +59,25 @@ export function galleriesFor(user) {
   return out;
 }
 
+/*
+  Where a gallery's photos already live, read off the gallery itself.
+
+  Better than asking the browser: it cannot be wrong, and it cannot be
+  lied about. Owners can upload to any gallery precisely because this
+  does not depend on their account carrying a folder for each one.
+  Returns null for an empty gallery, which has nothing to learn from.
+*/
+export function dirFromPhotos(photos) {
+  if (!Array.isArray(photos)) return null;
+  for (const photo of photos) {
+    const src = typeof photo === 'string' ? photo : (photo && photo.src);
+    if (typeof src !== 'string') continue;
+    const m = /^\/images\/(.+)\/[^/]+$/.exec(src);
+    if (m) return cleanGalleryDir(m[1]);
+  }
+  return null;
+}
+
 /* Paths an artist may write without further inspection. */
 function pathAllowedForArtist(path, galleries) {
   for (const [slug, dir] of Object.entries(galleries)) {
@@ -147,11 +166,14 @@ export function uploadPathFor(user, gallery, galleryDir, extension) {
 
   let dir;
   if (user.role === 'owner') {
+    // an owner may add photos anywhere, so the folder comes from the
+    // gallery rather than from their account, which lists none
     dir = cleanGalleryDir(galleryDir);
   } else {
     const galleries = galleriesFor(user);
     if (!Object.prototype.hasOwnProperty.call(galleries, gallery)) return null;
-    dir = galleries[gallery];
+    // an artist's own folder wins: it is what checkWrite will allow
+    dir = galleries[gallery] || cleanGalleryDir(galleryDir);
   }
   if (!dir) return null;
 
