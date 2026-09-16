@@ -752,3 +752,26 @@ footer { background: var(--bg-deep); border-top: 1px solid var(--border); }
   .bottom-cta, .bottom-info { padding: 40px 20px; }
   .trust-num { font-size: 30px; }
 }
+/* Staff way in to /admin/. A visible link is fine now that a real
+   sign-in stands behind it — the old hidden gesture only ever hid a
+   gate anyone could walk around by typing the URL. The 44px box is
+   the touch target; the icon inside stays small and quiet. */
+.staff-cog {
+  display: inline-flex; align-items: center; justify-content: center;
+  align-self: center;            /* the bar stacks on small screens */
+  width: 44px; height: 44px; margin: -12px 0;
+  color: var(--faint); flex-shrink: 0;
+  transition: color .2s ease, transform .4s ease;
+}
+/* stacked, the negative margin would pull it into the line above */
+@media (max-width: 900px) {
+  .staff-cog { margin: 0; }
+}
+.staff-cog svg { width: 15px; height: 15px; display: block; }
+.staff-cog:hover, .staff-cog:focus-visible { color: var(--gold-lt); transform: rotate(60deg); }
+.staff-cog:focus-visible { outline: 1px solid var(--gold-dim); outline-offset: 2px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .staff-cog { transition: color .2s ease; }
+  .staff-cog:hover, .staff-cog:focus-visible { transform: none; }
+}
