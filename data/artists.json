@@ -102,8 +102,8 @@
     "name": "Eathan",
     "photo": "eathan.jpg",
     "ig": "haleboy.tattoos",
-    "role": "Apprentice",
-    "style": "Apprentice · Growing Every Day",
+    "role": "Resident Artist",
+    "style": "New School",
     "bio": [
       "Eathan is the enthusiastic and dedicated apprentice over at our tattoo studio, honing his skills every day.",
       "Eathan enjoys a challenge himself with his drawing, as well as commissions he receives.",
@@ -130,5 +130,25 @@
       "We invite you to book a session with her today and become a part of her exciting artistic journey."
     ],
     "gallery": "zoie"
+  },
+  {
+    "slug": "savannah",
+    "name": "Savannah",
+    "photo": "",
+    "ig": "savvy__ink",
+    "role": "Resident Artist",
+    "style": "",
+    "gallery": "",
+    "bio": []
+  },
+  {
+    "slug": "",
+    "name": "New artist",
+    "photo": "",
+    "ig": "",
+    "role": "Resident Artist",
+    "style": "",
+    "gallery": "",
+    "bio": []
   }
 ]
