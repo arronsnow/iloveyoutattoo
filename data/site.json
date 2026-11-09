@@ -2,7 +2,7 @@
   "_comment": "Single source of truth for shop details. Edited in the admin; rendered by js/site.js into any element carrying a data-site attribute.",
   "name": "I Love You Tattoo",
   "established": "2021",
-  "tagline": "it's great to do what you love, and even better to do it with who you love",
+  "tagline": "CRAFT + CARE\nSINCE 2021",
   "address": {
     "street": "143 Cherokee Heights Drive",
     "city": "Maryville",
