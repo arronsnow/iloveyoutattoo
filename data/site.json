@@ -19,9 +19,9 @@
   "hours": [
     {
       "day": "Monday",
-      "open": null,
-      "close": null,
-      "closed": true
+      "open": "by appointment",
+      "close": "by appointment",
+      "closed": false
     },
     {
       "day": "Tuesday",
@@ -55,9 +55,9 @@
     },
     {
       "day": "Sunday",
-      "open": null,
-      "close": null,
-      "closed": true
+      "open": "by appointment",
+      "close": "by appointment",
+      "closed": false
     }
   ]
 }
